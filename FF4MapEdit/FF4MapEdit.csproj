@@ -109,7 +109,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FF4Rom\FF4.csproj">
+    <ProjectReference Include="..\FF4\FF4.csproj">
       <Project>{98eb45f6-743b-46f5-801b-88a84027227d}</Project>
       <Name>FF4</Name>
     </ProjectReference>

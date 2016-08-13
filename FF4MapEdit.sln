@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF4MapEdit", "FF4MapEdit\FF4MapEdit.csproj", "{68DFFE74-ED01-4654-9F16-1515EDED6438}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF4", "FF4Rom\FF4.csproj", "{98EB45F6-743B-46F5-801B-88A84027227D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF4", "FF4\FF4.csproj", "{98EB45F6-743B-46F5-801B-88A84027227D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
