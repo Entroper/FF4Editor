@@ -17,5 +17,6 @@
 				</Button>
 			</ToolBar>
 		</ToolBarTray>
+		<Image x:Name="Tileset" HorizontalAlignment="Left" Height="256" Margin="10,35,0,0" VerticalAlignment="Top" Width="512"/>
 	</Grid>
 </Window>
