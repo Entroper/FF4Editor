@@ -5,8 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FF4MapEdit"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+        Title="FF4MapEdit" Height="500" Width="800">
+	<Grid>
+		<ToolBarTray HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="792">
+			<ToolBar x:Name="toolBar" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top">
+				<Button x:Name="OpenButton" Click="OpenButton_Click">
+					<Image Source="icons/open.png"/>
+				</Button>
+				<Button x:Name="SaveButton">
+					<Image Source="icons/save.png"/>
+				</Button>
+			</ToolBar>
+		</ToolBarTray>
+	</Grid>
 </Window>

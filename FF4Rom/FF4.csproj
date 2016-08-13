@@ -7,8 +7,8 @@
     <ProjectGuid>{98EB45F6-743B-46F5-801B-88A84027227D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FF4Rom</RootNamespace>
-    <AssemblyName>FF4Rom</AssemblyName>
+    <RootNamespace>FF4</RootNamespace>
+    <AssemblyName>FF4</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

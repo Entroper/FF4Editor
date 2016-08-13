@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RomUtilities;
 
-namespace FF4Rom
+namespace FF4
 {
 	// ReSharper disable once InconsistentNaming
-	public class FF4Rom
+	public class FF4Rom : SnesRom
 	{
 		public const int OverworldRowPointersOffset = 0xB0000;
 		public const int OverworldRowCount = 256;
@@ -36,5 +37,15 @@ namespace FF4Rom
 		public const int MapSubTileCount = 256;
 		public const int MapTileCount = 128;
 		public const int MapPaletteLength = 64;
+
+		public FF4Rom(string filename) : base(filename)
+		{
+		}
+
+		public override bool Validate()
+		{
+			var title = Encoding.ASCII.GetString(Get(0x7FC0, 20));
+			return title == "FINAL FANTASY 2     ";
+		}
 	}
 }
