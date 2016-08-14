@@ -25,6 +25,8 @@ namespace FF4MapEdit
 		private FF4Rom _rom;
 		private string _filename;
 
+		private ushort[][] _tilesetBytes;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -77,27 +79,28 @@ namespace FF4MapEdit
 
 			var tileCount = FF4Rom.MapTileCount;
 			var tiles = new ImageDrawing[tileCount];
+			_tilesetBytes = new ushort[tileCount][];
 			for (int i = 0; i < tileCount; i++)
 			{
-				var tileBytes = new ushort[16*16];
+				_tilesetBytes[i] = new ushort[16*16];
 				var subTileIndex = formations[i];
-				CopySubTile(subTiles, 32*subTileIndex, tileBytes, 0, palette, offsets[subTileIndex]);
+				CopySubTileToTile(subTiles, 32*subTileIndex, _tilesetBytes[i], 0, palette, offsets[subTileIndex]);
 				subTileIndex = formations[i + tileCount];
-				CopySubTile(subTiles, 32*subTileIndex, tileBytes, 8, palette, offsets[subTileIndex]);
+				CopySubTileToTile(subTiles, 32*subTileIndex, _tilesetBytes[i], 8, palette, offsets[subTileIndex]);
 				subTileIndex = formations[i + 2*tileCount];
-				CopySubTile(subTiles, 32*subTileIndex, tileBytes, 8*16, palette, offsets[subTileIndex]);
+				CopySubTileToTile(subTiles, 32*subTileIndex, _tilesetBytes[i], 8*16, palette, offsets[subTileIndex]);
 				subTileIndex = formations[i + 3*tileCount];
-				CopySubTile(subTiles, 32*subTileIndex, tileBytes, 8*16 + 8, palette, offsets[subTileIndex]);
+				CopySubTileToTile(subTiles, 32*subTileIndex, _tilesetBytes[i], 8*16 + 8, palette, offsets[subTileIndex]);
 
 				tileGroup.Children.Add(new ImageDrawing(
-					BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, tileBytes, 16*2),
+					BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, _tilesetBytes[i], 16*2),
 					new Rect(new Point(16*(i%16), 16*(i/16)), new Size(16, 16))));
 			}
 
 			Tileset.Source = new DrawingImage(tileGroup);
 		}
 
-		private void CopySubTile(byte[] subTiles, int subTilesOffset, ushort[] tile, int tileOffset, ushort[] palette, int paletteOffset)
+		private void CopySubTileToTile(byte[] subTiles, int subTilesOffset, ushort[] tile, int tileOffset, ushort[] palette, int paletteOffset)
 		{
 			for (int y = 0; y < 8; y++)
 			{
@@ -127,28 +130,37 @@ namespace FF4MapEdit
 
 		private void LoadOverworldTiles()
 		{
-			var tiles = ((DrawingGroup)((DrawingImage)Tileset.Source).Drawing).Children;
-
 			var rowGroup = new DrawingGroup();
 			rowGroup.Open();
 
 			var rows = _rom.GetOverworldRows();
+			var rowLength = FF4Rom.OverworldRowLength;
 			for (int y = 0; y < FF4Rom.OverworldRowCount; y++)
 			{
-				var tileGroup = new DrawingGroup { Transform = new TranslateTransform(0, 16*y) };
-				tileGroup.Open();
-				for (int x = 0; x < FF4Rom.OverworldRowLength; x++)
+				var rowBytes = new ushort[16*16*rowLength];
+				for (int x = 0; x < rowLength; x++)
 				{
-					tileGroup.Children.Add(new ImageDrawing(
-						((ImageDrawing)tiles[rows[FF4Rom.OverworldRowLength*y + x]]).ImageSource,
-						new Rect(new Point(16*x, 0), new Size(16, 16))));
+					CopyTileToRow(_tilesetBytes[rows[y*rowLength + x]], rowBytes, 16*x);
 				}
 
-				rowGroup.Children.Add(tileGroup);
+				rowGroup.Children.Add(new ImageDrawing(
+					BitmapSource.Create(16*rowLength, 16, 72, 72, PixelFormats.Bgr555, null, rowBytes, 16*rowLength*2),
+					new Rect(new Point(0, 16*y), new Size(16*rowLength, 16))));
 			}
 
 			Map.Source = new DrawingImage(rowGroup);
 			Map.Stretch = Stretch.None;
+		}
+
+		private void CopyTileToRow(ushort[] tile, ushort[] row, int rowOffset)
+		{
+			for (int y = 0; y < 16; y++)
+			{
+				for (int x = 0; x < 16; x++)
+				{
+					row[rowOffset + 16*y*FF4Rom.OverworldRowLength + x] = tile[16*y + x];
+				}
+			}
 		}
 	}
 }
