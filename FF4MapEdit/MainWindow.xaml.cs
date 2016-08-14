@@ -26,6 +26,10 @@ namespace FF4MapEdit
 		private string _filename;
 
 		private ushort[][] _tilesetBytes;
+		private byte[] _rows;
+
+		private int _selectedTile;
+		private GeometryDrawing _selectedTileDrawing = new GeometryDrawing();
 
 		public MainWindow()
 		{
@@ -46,18 +50,41 @@ namespace FF4MapEdit
 			}
 
 			_rom = new FF4Rom(openFileDialog.FileName);
-			if (_rom.Validate())
+			if (!_rom.Validate())
 			{
-				MessageBox.Show("ROM appears to be valid.");
-			}
-			else
-			{
-				MessageBox.Show("ROM does not appear to be valid.  Proceed at your own risk.");
+				MessageBox.Show("ROM does not appear to be a US version 1.1 ROM.  Proceed at your own risk.", "Validation Failed");
 			}
 
 			_filename = openFileDialog.FileName;
 
 			LoadOverworld();
+		}
+
+		private void Tileset_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+		{
+			var position = e.GetPosition((IInputElement)sender);
+			int x = (int)position.X;
+			int y = (int)position.Y;
+			if (x < 0 || x > 256 || y < 0 || y > 128)
+			{
+				return;
+			}
+
+			_selectedTile = x/16 + 16*(y/16);
+
+			var tileGroup = (DrawingGroup)((DrawingImage)Tileset.Source).Drawing;
+			tileGroup.Children.Remove(_selectedTileDrawing);
+
+			var geometry = new GeometryGroup();
+			geometry.Children.Add(new RectangleGeometry(new Rect(new Point(16*(x/16), 16*(y/16)), new Size(16, 16))));
+			_selectedTileDrawing = new GeometryDrawing
+			{
+				Geometry = geometry,
+				Brush = Brushes.Transparent,
+				Pen = new Pen(Brushes.Aqua, 2)
+			};
+
+			tileGroup.Children.Add(_selectedTileDrawing);
 		}
 
 		private void LoadOverworld()
@@ -69,16 +96,15 @@ namespace FF4MapEdit
 		private void LoadOverworldTileset()
 		{
 			var tileGroup = new DrawingGroup();
-			tileGroup.Open();
+			tileGroup.Children.Add(_selectedTileDrawing);
 
 			var subTiles = _rom.GetOverworldSubTiles();
 			var palette = _rom.GetOverworldPalette();
-			FixPalette(palette);
+			RgbToBgr(palette);
 			var offsets = _rom.GetOverworldSubTilePaletteOffsets();
 			var formations = _rom.GetOverworldTileFormations();
 
 			var tileCount = FF4Rom.MapTileCount;
-			var tiles = new ImageDrawing[tileCount];
 			_tilesetBytes = new ushort[tileCount][];
 			for (int i = 0; i < tileCount; i++)
 			{
@@ -117,7 +143,7 @@ namespace FF4MapEdit
 			}
 		}
 
-		private void FixPalette(ushort[] palette)
+		private void RgbToBgr(ushort[] palette)
 		{
 			for (int i = 0; i < palette.Length; i++)
 			{
@@ -133,14 +159,14 @@ namespace FF4MapEdit
 			var rowGroup = new DrawingGroup();
 			rowGroup.Open();
 
-			var rows = _rom.GetOverworldRows();
+			_rows = _rom.GetOverworldRows();
 			var rowLength = FF4Rom.OverworldRowLength;
 			for (int y = 0; y < FF4Rom.OverworldRowCount; y++)
 			{
 				var rowBytes = new ushort[16*16*rowLength];
 				for (int x = 0; x < rowLength; x++)
 				{
-					CopyTileToRow(_tilesetBytes[rows[y*rowLength + x]], rowBytes, 16*x);
+					CopyTileToRow(_tilesetBytes[_rows[y*rowLength + x]], rowBytes, 16*x);
 				}
 
 				rowGroup.Children.Add(new ImageDrawing(
