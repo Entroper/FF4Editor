@@ -26,10 +26,11 @@ namespace FF4MapEdit
 		private string _filename;
 
 		private ushort[][] _tilesetBytes;
-		private byte[] _rows;
+		private byte[] _map;
 
-		private int _selectedTile;
+		private int _selectedTile = -1;
 		private GeometryDrawing _selectedTileDrawing = new GeometryDrawing();
+		private WriteableBitmap[] _rowBitmaps;
 
 		public MainWindow()
 		{
@@ -62,21 +63,20 @@ namespace FF4MapEdit
 
 		private void Tileset_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
 		{
-			var position = e.GetPosition((IInputElement)sender);
-			int x = (int)position.X;
-			int y = (int)position.Y;
-			if (x < 0 || x > 256 || y < 0 || y > 128)
+			int x, y;
+			GetClickedTile(sender, e, out x, out y);
+			if (x < 0 || x >= 16 || y < 0 || y >= 8)
 			{
 				return;
 			}
 
-			_selectedTile = x/16 + 16*(y/16);
+			_selectedTile = 16*y + x;
 
 			var tileGroup = (DrawingGroup)((DrawingImage)Tileset.Source).Drawing;
 			tileGroup.Children.Remove(_selectedTileDrawing);
 
 			var geometry = new GeometryGroup();
-			geometry.Children.Add(new RectangleGeometry(new Rect(new Point(16*(x/16), 16*(y/16)), new Size(16, 16))));
+			geometry.Children.Add(new RectangleGeometry(new Rect(new Point(16*x, 16*y), new Size(16, 16))));
 			_selectedTileDrawing = new GeometryDrawing
 			{
 				Geometry = geometry,
@@ -85,6 +85,36 @@ namespace FF4MapEdit
 			};
 
 			tileGroup.Children.Add(_selectedTileDrawing);
+		}
+
+		private void Map_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+		{
+			if (_selectedTile == -1)
+			{
+				return;
+			}
+
+			int x, y;
+			GetClickedTile(sender, e, out x, out y);
+			if (x < 0 || x >= 256 || y < 0 || y >= 256)
+			{
+				return;
+			}
+
+			_map[256*y + x] = (byte)_selectedTile;
+
+			_rowBitmaps[y].Lock();
+			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tilesetBytes[_selectedTile], 16*2, 0);
+			_rowBitmaps[y].Unlock();
+		}
+
+		private void GetClickedTile(object sender, MouseButtonEventArgs e, out int x, out int y)
+		{
+			var position = e.GetPosition((IInputElement)sender);
+			x = (int)position.X;
+			y = (int)position.Y;
+			x /= 16;
+			y /= 16;
 		}
 
 		private void LoadOverworld()
@@ -159,34 +189,27 @@ namespace FF4MapEdit
 			var rowGroup = new DrawingGroup();
 			rowGroup.Open();
 
-			_rows = _rom.GetOverworldRows();
+			_map = _rom.GetOverworldMap();
 			var rowLength = FF4Rom.OverworldRowLength;
+			_rowBitmaps = new WriteableBitmap[FF4Rom.OverworldRowCount];
 			for (int y = 0; y < FF4Rom.OverworldRowCount; y++)
 			{
-				var rowBytes = new ushort[16*16*rowLength];
+				_rowBitmaps[y] = new WriteableBitmap(16*256, 16, 72, 72, PixelFormats.Bgr555, null);
+				_rowBitmaps[y].Lock();
 				for (int x = 0; x < rowLength; x++)
 				{
-					CopyTileToRow(_tilesetBytes[_rows[y*rowLength + x]], rowBytes, 16*x);
+					var tile = _map[y*rowLength + x];
+					_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tilesetBytes[tile], 16*2, 0);
 				}
 
-				rowGroup.Children.Add(new ImageDrawing(
-					BitmapSource.Create(16*rowLength, 16, 72, 72, PixelFormats.Bgr555, null, rowBytes, 16*rowLength*2),
+				_rowBitmaps[y].Unlock();
+
+				rowGroup.Children.Add(new ImageDrawing(_rowBitmaps[y],
 					new Rect(new Point(0, 16*y), new Size(16*rowLength, 16))));
 			}
 
 			Map.Source = new DrawingImage(rowGroup);
 			Map.Stretch = Stretch.None;
-		}
-
-		private void CopyTileToRow(ushort[] tile, ushort[] row, int rowOffset)
-		{
-			for (int y = 0; y < 16; y++)
-			{
-				for (int x = 0; x < 16; x++)
-				{
-					row[rowOffset + 16*y*FF4Rom.OverworldRowLength + x] = tile[16*y + x];
-				}
-			}
 		}
 	}
 }

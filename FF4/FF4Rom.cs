@@ -66,7 +66,7 @@ namespace FF4
 			return palette;
 		}
 
-		public byte[] GetOverworldRows()
+		public byte[] GetOverworldMap()
 		{
 			var pointerBytes = Get(OverworldRowPointersOffset, 2*OverworldRowCount);
 
