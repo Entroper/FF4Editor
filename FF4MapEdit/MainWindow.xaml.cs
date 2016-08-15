@@ -32,6 +32,8 @@ namespace FF4MapEdit
 		private GeometryDrawing _selectedTileDrawing = new GeometryDrawing();
 		private WriteableBitmap[] _rowBitmaps;
 
+		private bool _painting = false;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -87,7 +89,7 @@ namespace FF4MapEdit
 			tileGroup.Children.Add(_selectedTileDrawing);
 		}
 
-		private void Map_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+		private void Map_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
 			if (_selectedTile == -1)
 			{
@@ -101,6 +103,27 @@ namespace FF4MapEdit
 				return;
 			}
 
+			Paint(x, y);
+			_painting = true;
+		}
+
+		private void Map_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+		{
+			_painting = false;
+		}
+
+		private void Map_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (_painting)
+			{
+				int x, y;
+				GetClickedTile(sender, e, out x, out y);
+				Paint(x, y);
+			}
+		}
+
+		private void Paint(int x, int y)
+		{
 			_map[256*y + x] = (byte)_selectedTile;
 
 			_rowBitmaps[y].Lock();
@@ -111,6 +134,17 @@ namespace FF4MapEdit
 		private void GetClickedTile(object sender, MouseButtonEventArgs e, out int x, out int y)
 		{
 			var position = e.GetPosition((IInputElement)sender);
+			PixelsToTile(position, out x, out y);
+		}
+
+		private void GetClickedTile(object sender, MouseEventArgs e, out int x, out int y)
+		{
+			var position = e.GetPosition((IInputElement)sender);
+			PixelsToTile(position, out x, out y);
+		}
+
+		private static void PixelsToTile(Point position, out int x, out int y)
+		{
 			x = (int)position.X;
 			y = (int)position.Y;
 			x /= 16;
