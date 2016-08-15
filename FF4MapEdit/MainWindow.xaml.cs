@@ -26,7 +26,7 @@ namespace FF4MapEdit
 		private string _filename;
 
 		private ushort[][] _tilesetBytes;
-		private byte[] _map;
+		private byte[,] _map;
 
 		private int _selectedTile = -1;
 		private GeometryDrawing _selectedTileDrawing = new GeometryDrawing();
@@ -124,7 +124,7 @@ namespace FF4MapEdit
 
 		private void Paint(int x, int y)
 		{
-			_map[256*y + x] = (byte)_selectedTile;
+			_map[y, x] = (byte)_selectedTile;
 
 			_rowBitmaps[y].Lock();
 			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tilesetBytes[_selectedTile], 16*2, 0);
@@ -232,7 +232,7 @@ namespace FF4MapEdit
 				_rowBitmaps[y].Lock();
 				for (int x = 0; x < rowLength; x++)
 				{
-					var tile = _map[y*rowLength + x];
+					var tile = _map[y, x];
 					_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tilesetBytes[tile], 16*2, 0);
 				}
 

@@ -66,48 +66,48 @@ namespace FF4
 			return palette;
 		}
 
-		public byte[] GetOverworldMap()
+		public byte[,] GetOverworldMap()
 		{
 			var pointerBytes = Get(OverworldRowPointersOffset, 2*OverworldRowCount);
 
 			var pointers = new ushort[OverworldRowCount];
 			Buffer.BlockCopy(pointerBytes, 0, pointers, 0, 2*OverworldRowCount);
 
-			var rows = new byte[OverworldRowCount*OverworldRowLength];
-			for (int i = 0; i < OverworldRowCount; i++)
+			var rows = new byte[OverworldRowCount, OverworldRowLength];
+			for (int y = 0; y < OverworldRowCount; y++)
 			{
-				var dataOffset = OverworldRowDataOffset + pointers[i];
+				var dataOffset = OverworldRowDataOffset + pointers[y];
 				var rowOffset = 0;
 				byte tile = Data[dataOffset];
 				while (tile != 0xFF)
 				{
 					if (tile == 0x00)
 					{
-						rows[OverworldRowLength*i + rowOffset++] = 0x00;
-						rows[OverworldRowLength*i + rowOffset++] = 0x70;
-						rows[OverworldRowLength*i + rowOffset++] = 0x71;
-						rows[OverworldRowLength*i + rowOffset++] = 0x72;
+						rows[y, rowOffset++] = 0x00;
+						rows[y, rowOffset++] = 0x70;
+						rows[y, rowOffset++] = 0x71;
+						rows[y, rowOffset++] = 0x72;
 					}
 					else if (tile == 0x10)
 					{
-						rows[OverworldRowLength*i + rowOffset++] = 0x10;
-						rows[OverworldRowLength*i + rowOffset++] = 0x73;
-						rows[OverworldRowLength*i + rowOffset++] = 0x74;
-						rows[OverworldRowLength*i + rowOffset++] = 0x75;
+						rows[y, rowOffset++] = 0x10;
+						rows[y, rowOffset++] = 0x73;
+						rows[y, rowOffset++] = 0x74;
+						rows[y, rowOffset++] = 0x75;
 					}
 					else if (tile == 0x20)
 					{
-						rows[OverworldRowLength*i + rowOffset++] = 0x20;
-						rows[OverworldRowLength*i + rowOffset++] = 0x76;
-						rows[OverworldRowLength*i + rowOffset++] = 0x77;
-						rows[OverworldRowLength*i + rowOffset++] = 0x78;
+						rows[y, rowOffset++] = 0x20;
+						rows[y, rowOffset++] = 0x76;
+						rows[y, rowOffset++] = 0x77;
+						rows[y, rowOffset++] = 0x78;
 					}
 					else if (tile == 0x30)
 					{
-						rows[OverworldRowLength*i + rowOffset++] = 0x30;
-						rows[OverworldRowLength*i + rowOffset++] = 0x79;
-						rows[OverworldRowLength*i + rowOffset++] = 0x7A;
-						rows[OverworldRowLength*i + rowOffset++] = 0x7B;
+						rows[y, rowOffset++] = 0x30;
+						rows[y, rowOffset++] = 0x79;
+						rows[y, rowOffset++] = 0x7A;
+						rows[y, rowOffset++] = 0x7B;
 					}
 					else if (tile >= 0x80)
 					{
@@ -115,12 +115,12 @@ namespace FF4
 						var count = Data[++dataOffset] + 1;
 						for (int j = 0; j < count; j++)
 						{
-							rows[OverworldRowLength*i + rowOffset++] = tile;
+							rows[y, rowOffset++] = tile;
 						}
 					}
 					else
 					{
-						rows[OverworldRowLength*i + rowOffset++] = tile;
+						rows[y, rowOffset++] = tile;
 					}
 
 					dataOffset++;
