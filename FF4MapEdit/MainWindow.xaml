@@ -7,18 +7,18 @@
         mc:Ignorable="d"
         Title="FF4MapEdit" Height="720" Width="1280">
 	<Grid>
-		<ToolBarTray HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="792">
+		<ToolBarTray Height="30" VerticalAlignment="Top" Margin="0,0,0,0">
 			<ToolBar x:Name="toolBar" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top">
-				<Button x:Name="OpenButton" Click="OpenButton_Click">
+				<Button x:Name="OpenButton" ToolTip="Open" Click="OpenButton_Click">
 					<Image Source="icons/open.png"/>
 				</Button>
-				<Button x:Name="SaveButton">
+				<Button x:Name="SaveButton" ToolTip="Save" Click="SaveButton_Click">
 					<Image Source="icons/save.png"/>
 				</Button>
 			</ToolBar>
 		</ToolBarTray>
 		<Image x:Name="Tileset" HorizontalAlignment="Left" Height="128" Margin="10,35,0,0" VerticalAlignment="Top" Width="256" MouseLeftButtonUp="Tileset_MouseLeftButtonUp"/>
-		<ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Height="644" Margin="271,35,0,0" VerticalAlignment="Top" Width="991">
+		<ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="271,35,0,0" VerticalAlignment="Top">
 			<Image x:Name="Map" HorizontalAlignment="Left" Height="4096" Margin="0,0,0,0" VerticalAlignment="Top" Width="4096" MouseLeftButtonUp="Map_MouseLeftButtonUp" MouseLeftButtonDown="Map_MouseLeftButtonDown" MouseMove="Map_MouseMove"/>
 		</ScrollViewer>
 	</Grid>
