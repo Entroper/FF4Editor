@@ -63,6 +63,22 @@ namespace FF4MapEdit
 			LoadOverworld();
 		}
 
+		private void SaveButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (_map != null)
+			{
+				try
+				{
+					_rom.SaveOverworldMap(_map);
+					_rom.Save(_filename);
+				}
+				catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Overworld map data is too big"))
+				{
+					MessageBox.Show(ex.Message, "Error while saving");
+				}
+			}
+		}
+
 		private void Tileset_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
 		{
 			int x, y;

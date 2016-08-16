@@ -12,6 +12,7 @@ namespace FF4
 	{
 		public const int OverworldRowPointersOffset = 0xB0000;
 		public const int OverworldRowDataOffset = 0xB0480;
+		public const int OverworldRowDataMaxLength = 0x4000;
 		public const int OverworldRowCount = 256;
 		public const int OverworldRowLength = 256;
 		public const int OverworldSubTileGraphicsOffset = 0xE8000;
@@ -129,6 +130,66 @@ namespace FF4
 			}
 
 			return rows;
+		}
+
+		public void SaveOverworldMap(byte[,] map)
+		{
+			var compressedBytes = new byte[OverworldRowCount*OverworldRowLength];
+			ushort dataOffset = 0;
+			var pointers = new ushort[OverworldRowCount];
+
+			for (int y = 0; y < OverworldRowCount; y++)
+			{
+				pointers[y] = dataOffset;
+				int x = 0;
+				while (x < OverworldRowLength)
+				{
+					if (map[y, x] == 0x00 || map[y, x] == 0x10 || map[y, x] == 0x20 || map[y, x] == 0x30)
+					{
+						compressedBytes[dataOffset++] = map[y, x];
+						x += 4;
+					}
+					else if (x == OverworldRowLength - 1)
+					{
+						compressedBytes[dataOffset++] = map[y, x++];
+					}
+					else if (map[y, x + 1] == map[y, x])
+					{
+						compressedBytes[dataOffset++] = (byte)(map[y, x++] + 0x80);
+
+						byte repeatCount = 0;
+						while (x < OverworldRowLength && map[y, x - 1] == map[y, x])
+						{
+							x++;
+							repeatCount++;
+						}
+						compressedBytes[dataOffset++] = repeatCount;
+					}
+					else
+					{
+						compressedBytes[dataOffset++] = map[y, x++];
+					}
+				}
+
+				compressedBytes[dataOffset++] = 0xFF;
+			}
+
+			if (dataOffset > OverworldRowDataMaxLength)
+			{
+				throw new IndexOutOfRangeException($"Overworld map data is too big: {dataOffset} bytes used, {OverworldRowDataMaxLength} bytes allowed");
+			}
+
+			var pointerBytes = new byte[OverworldRowCount*2];
+			Buffer.BlockCopy(pointers, 0, pointerBytes, 0, pointerBytes.Length);
+			Put(OverworldRowPointersOffset, pointerBytes);
+
+			var mapDataBytes = new byte[OverworldRowDataMaxLength];
+			Buffer.BlockCopy(compressedBytes, 0, mapDataBytes, 0, dataOffset);
+			while (dataOffset < OverworldRowDataMaxLength)
+			{
+				mapDataBytes[dataOffset++] = 0xFF;
+			}
+			Put(OverworldRowDataOffset, mapDataBytes);
 		}
 	}
 }
