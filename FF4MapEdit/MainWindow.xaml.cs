@@ -31,6 +31,15 @@ namespace FF4MapEdit
 
 		private bool _painting = false;
 
+		private int SpaceUsed
+		{
+			set
+			{
+				SpaceUsedLabel.Content = $"Space used: {value}/{FF4Rom.OverworldRowDataMaxLength} bytes";
+				SpaceUsedLabel.Foreground = value > FF4Rom.OverworldRowDataMaxLength ? Brushes.Red : Brushes.Black;
+			}
+		}
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -143,6 +152,8 @@ namespace FF4MapEdit
 			_rowBitmaps[y].Lock();
 			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _rom.Tileset[_selectedTile], 16*2, 0);
 			_rowBitmaps[y].Unlock();
+
+			SpaceUsed = _rom.Map.Length;
 		}
 
 		private void GetClickedTile(object sender, MouseButtonEventArgs e, out int x, out int y)
@@ -171,6 +182,8 @@ namespace FF4MapEdit
 
 			LoadOverworldTileset();
 			LoadOverworldTiles();
+
+			SpaceUsed = _rom.Map.Length;
 		}
 
 		private void LoadOverworldTileset()

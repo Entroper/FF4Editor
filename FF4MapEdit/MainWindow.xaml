@@ -21,5 +21,6 @@
 		<ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="271,35,0,0" VerticalAlignment="Top">
 			<Image x:Name="Map" HorizontalAlignment="Left" Height="4096" Margin="0,0,0,0" VerticalAlignment="Top" Width="4096" MouseLeftButtonUp="Map_MouseLeftButtonUp" MouseLeftButtonDown="Map_MouseLeftButtonDown" MouseMove="Map_MouseMove"/>
 		</ScrollViewer>
+		<Label x:Name="SpaceUsedLabel" Content="" HorizontalAlignment="Left" Margin="10,168,0,0" VerticalAlignment="Top"/>
 	</Grid>
 </Window>
