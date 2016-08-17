@@ -25,9 +25,6 @@ namespace FF4MapEdit
 		private FF4Rom _rom;
 		private string _filename;
 
-		private ushort[][] _tilesetBytes;
-		private byte[,] _map;
-
 		private int _selectedTile = -1;
 		private GeometryDrawing _selectedTileDrawing = new GeometryDrawing();
 		private WriteableBitmap[] _rowBitmaps;
@@ -65,17 +62,18 @@ namespace FF4MapEdit
 
 		private void SaveButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (_map != null)
+			if (_rom.Map != null)
 			{
 				try
 				{
-					_rom.SaveOverworldMap(_map);
-					_rom.Save(_filename);
+					_rom.SaveOverworldMap();
 				}
 				catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Overworld map data is too big"))
 				{
 					MessageBox.Show(ex.Message, "Error while saving");
 				}
+
+				_rom.Save(_filename);
 			}
 		}
 
@@ -140,10 +138,10 @@ namespace FF4MapEdit
 
 		private void Paint(int x, int y)
 		{
-			_map[y, x] = (byte)_selectedTile;
+			_rom.Map[y, x] = (byte)_selectedTile;
 
 			_rowBitmaps[y].Lock();
-			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tilesetBytes[_selectedTile], 16*2, 0);
+			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _rom.Tileset[_selectedTile], 16*2, 0);
 			_rowBitmaps[y].Unlock();
 		}
 
@@ -169,6 +167,8 @@ namespace FF4MapEdit
 
 		private void LoadOverworld()
 		{
+			_rom.LoadOverworldMap();
+
 			LoadOverworldTileset();
 			LoadOverworldTiles();
 		}
@@ -178,60 +178,14 @@ namespace FF4MapEdit
 			var tileGroup = new DrawingGroup();
 			tileGroup.Children.Add(_selectedTileDrawing);
 
-			var subTiles = _rom.GetOverworldSubTiles();
-			var palette = _rom.GetOverworldPalette();
-			RgbToBgr(palette);
-			var offsets = _rom.GetOverworldSubTilePaletteOffsets();
-			var formations = _rom.GetOverworldTileFormations();
-
-			var tileCount = FF4Rom.MapTileCount;
-			_tilesetBytes = new ushort[tileCount][];
-			for (int i = 0; i < tileCount; i++)
+			for (int i = 0; i < FF4Rom.MapTileCount; i++)
 			{
-				_tilesetBytes[i] = new ushort[16*16];
-				var subTileIndex = formations[i];
-				CopySubTileToTile(subTiles, 32*subTileIndex, _tilesetBytes[i], 0, palette, offsets[subTileIndex]);
-				subTileIndex = formations[i + tileCount];
-				CopySubTileToTile(subTiles, 32*subTileIndex, _tilesetBytes[i], 8, palette, offsets[subTileIndex]);
-				subTileIndex = formations[i + 2*tileCount];
-				CopySubTileToTile(subTiles, 32*subTileIndex, _tilesetBytes[i], 8*16, palette, offsets[subTileIndex]);
-				subTileIndex = formations[i + 3*tileCount];
-				CopySubTileToTile(subTiles, 32*subTileIndex, _tilesetBytes[i], 8*16 + 8, palette, offsets[subTileIndex]);
-
 				tileGroup.Children.Add(new ImageDrawing(
-					BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, _tilesetBytes[i], 16*2),
-					new Rect(new Point(16*(i%16), 16*(i/16)), new Size(16, 16))));
+					BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, _rom.Tileset[i], 16 * 2),
+					new Rect(new Point(16 * (i % 16), 16 * (i / 16)), new Size(16, 16))));
 			}
 
 			Tileset.Source = new DrawingImage(tileGroup);
-		}
-
-		private void CopySubTileToTile(byte[] subTiles, int subTilesOffset, ushort[] tile, int tileOffset, ushort[] palette, int paletteOffset)
-		{
-			for (int y = 0; y < 8; y++)
-			{
-				for (int x = 0; x < 4; x++)
-				{
-					byte twoPixels = subTiles[subTilesOffset + 4 * y + x];
-
-					byte pixel = (byte)(twoPixels & 0x0F);
-					tile[tileOffset + 16*y + 2*x] = palette[paletteOffset + pixel];
-
-					pixel = (byte)((twoPixels & 0xF0) >> 4);
-					tile[tileOffset + 16*y + 2*x + 1] = palette[paletteOffset + pixel];
-				}
-			}
-		}
-
-		private void RgbToBgr(ushort[] palette)
-		{
-			for (int i = 0; i < palette.Length; i++)
-			{
-				palette[i] = (ushort)(
-					((palette[i] & 0x001F) << 10) |
-					((palette[i] & 0x03E0)) |
-					((palette[i] & 0x7C00) >> 10));
-			}
 		}
 
 		private void LoadOverworldTiles()
@@ -239,7 +193,6 @@ namespace FF4MapEdit
 			var rowGroup = new DrawingGroup();
 			rowGroup.Open();
 
-			_map = _rom.GetOverworldMap();
 			var rowLength = FF4Rom.OverworldRowLength;
 			_rowBitmaps = new WriteableBitmap[FF4Rom.OverworldRowCount];
 			for (int y = 0; y < FF4Rom.OverworldRowCount; y++)
@@ -248,8 +201,8 @@ namespace FF4MapEdit
 				_rowBitmaps[y].Lock();
 				for (int x = 0; x < rowLength; x++)
 				{
-					var tile = _map[y, x];
-					_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tilesetBytes[tile], 16*2, 0);
+					var tile = _rom.Map[y, x];
+					_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _rom.Tileset[tile], 16*2, 0);
 				}
 
 				_rowBitmaps[y].Unlock();

@@ -45,7 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FF4Rom.cs" />
+    <Compile Include="Map.cs" />
+    <Compile Include="MapType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tileset.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -53,143 +53,44 @@ namespace FF4
 			return title == "FINAL FANTASY 2     ";
 		}
 
-		public byte[] GetOverworldSubTiles() => Get(OverworldSubTileGraphicsOffset, 32*MapSubTileCount);
-		public byte[] GetOverworldTileFormations() => Get(OverworldTileFormationsOffset, 4*MapTileCount);
-		public byte[] GetOverworldSubTilePaletteOffsets() => Get(OverworldSubTilePaletteOffsetsOffset, MapSubTileCount);
+		public Tileset Tileset { get; private set; }
+		public Map Map { get; private set; }
 
-		public ushort[] GetOverworldPalette()
+		public void LoadOverworldMap()
 		{
-			var paletteBytes = Get(OverworldPaletteOffset, 2*64);
+			var data = Get(OverworldRowDataOffset, OverworldRowDataMaxLength);
+			var pointerBytes = Get(OverworldRowPointersOffset, OverworldRowCount * 2);
+			var pointers = new ushort[OverworldRowCount];
+			Buffer.BlockCopy(pointerBytes, 0, pointers, 0, pointerBytes.Length);
 
+			Map = new Map(MapType.Overworld, data, pointers);
+
+			var subTiles = Get(OverworldSubTileGraphicsOffset, 32 * MapSubTileCount);
+			var formations = Get(OverworldTileFormationsOffset, 4 * MapTileCount);
+			var paletteBytes = Get(OverworldPaletteOffset, 2 * 64);
 			var palette = new ushort[64];
-			Buffer.BlockCopy(paletteBytes, 0, palette, 0, 2*64);
+			Buffer.BlockCopy(paletteBytes, 0, palette, 0, 2 * 64);
+			var paletteOffsets = Get(OverworldSubTilePaletteOffsetsOffset, MapSubTileCount);
 
-			return palette;
+			Tileset = new Tileset(subTiles, formations, palette, paletteOffsets);
 		}
 
-		public byte[,] GetOverworldMap()
+		public void SaveOverworldMap()
 		{
-			var pointerBytes = Get(OverworldRowPointersOffset, 2*OverworldRowCount);
-
-			var pointers = new ushort[OverworldRowCount];
-			Buffer.BlockCopy(pointerBytes, 0, pointers, 0, 2*OverworldRowCount);
-
-			var rows = new byte[OverworldRowCount, OverworldRowLength];
-			for (int y = 0; y < OverworldRowCount; y++)
+			var length = Map.Length;
+			if (length > OverworldRowDataMaxLength)
 			{
-				var dataOffset = OverworldRowDataOffset + pointers[y];
-				var rowOffset = 0;
-				byte tile = Data[dataOffset];
-				while (tile != 0xFF)
-				{
-					if (tile == 0x00)
-					{
-						rows[y, rowOffset++] = 0x00;
-						rows[y, rowOffset++] = 0x70;
-						rows[y, rowOffset++] = 0x71;
-						rows[y, rowOffset++] = 0x72;
-					}
-					else if (tile == 0x10)
-					{
-						rows[y, rowOffset++] = 0x10;
-						rows[y, rowOffset++] = 0x73;
-						rows[y, rowOffset++] = 0x74;
-						rows[y, rowOffset++] = 0x75;
-					}
-					else if (tile == 0x20)
-					{
-						rows[y, rowOffset++] = 0x20;
-						rows[y, rowOffset++] = 0x76;
-						rows[y, rowOffset++] = 0x77;
-						rows[y, rowOffset++] = 0x78;
-					}
-					else if (tile == 0x30)
-					{
-						rows[y, rowOffset++] = 0x30;
-						rows[y, rowOffset++] = 0x79;
-						rows[y, rowOffset++] = 0x7A;
-						rows[y, rowOffset++] = 0x7B;
-					}
-					else if (tile >= 0x80)
-					{
-						tile -= 0x80;
-						var count = Data[++dataOffset] + 1;
-						for (int j = 0; j < count; j++)
-						{
-							rows[y, rowOffset++] = tile;
-						}
-					}
-					else
-					{
-						rows[y, rowOffset++] = tile;
-					}
-
-					dataOffset++;
-					tile = Data[dataOffset];
-				}
+				throw new IndexOutOfRangeException($"Overworld map data is too big: {length} bytes used, {OverworldRowDataMaxLength} bytes allowed");
 			}
 
-			return rows;
-		}
-
-		public void SaveOverworldMap(byte[,] map)
-		{
-			var compressedBytes = new byte[OverworldRowCount*OverworldRowLength];
-			ushort dataOffset = 0;
-			var pointers = new ushort[OverworldRowCount];
-
-			for (int y = 0; y < OverworldRowCount; y++)
-			{
-				pointers[y] = dataOffset;
-				int x = 0;
-				while (x < OverworldRowLength)
-				{
-					if (map[y, x] == 0x00 || map[y, x] == 0x10 || map[y, x] == 0x20 || map[y, x] == 0x30)
-					{
-						compressedBytes[dataOffset++] = map[y, x];
-						x += 4;
-					}
-					else if (x == OverworldRowLength - 1)
-					{
-						compressedBytes[dataOffset++] = map[y, x++];
-					}
-					else if (map[y, x + 1] == map[y, x])
-					{
-						compressedBytes[dataOffset++] = (byte)(map[y, x++] + 0x80);
-
-						byte repeatCount = 0;
-						while (x < OverworldRowLength && map[y, x - 1] == map[y, x])
-						{
-							x++;
-							repeatCount++;
-						}
-						compressedBytes[dataOffset++] = repeatCount;
-					}
-					else
-					{
-						compressedBytes[dataOffset++] = map[y, x++];
-					}
-				}
-
-				compressedBytes[dataOffset++] = 0xFF;
-			}
-
-			if (dataOffset > OverworldRowDataMaxLength)
-			{
-				throw new IndexOutOfRangeException($"Overworld map data is too big: {dataOffset} bytes used, {OverworldRowDataMaxLength} bytes allowed");
-			}
-
-			var pointerBytes = new byte[OverworldRowCount*2];
+			byte[] data;
+			ushort[] pointers;
+			byte[] pointerBytes = new byte[OverworldRowCount*2];
+			Map.GetCompressedData(out data, out pointers);
 			Buffer.BlockCopy(pointers, 0, pointerBytes, 0, pointerBytes.Length);
-			Put(OverworldRowPointersOffset, pointerBytes);
 
-			var mapDataBytes = new byte[OverworldRowDataMaxLength];
-			Buffer.BlockCopy(compressedBytes, 0, mapDataBytes, 0, dataOffset);
-			while (dataOffset < OverworldRowDataMaxLength)
-			{
-				mapDataBytes[dataOffset++] = 0xFF;
-			}
-			Put(OverworldRowDataOffset, mapDataBytes);
+			Put(OverworldRowDataOffset, data);
+			Put(OverworldRowPointersOffset, pointerBytes);
 		}
 	}
 }
