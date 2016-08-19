@@ -67,12 +67,17 @@ namespace FF4
 
 			var subTiles = Get(OverworldSubTileGraphicsOffset, 32 * MapSubTileCount);
 			var formations = Get(OverworldTileFormationsOffset, 4 * MapTileCount);
+
 			var paletteBytes = Get(OverworldPaletteOffset, 2 * 64);
 			var palette = new ushort[64];
 			Buffer.BlockCopy(paletteBytes, 0, palette, 0, 2 * 64);
 			var paletteOffsets = Get(OverworldSubTilePaletteOffsetsOffset, MapSubTileCount);
 
-			Tileset = new Tileset(subTiles, formations, palette, paletteOffsets);
+			var propertyBytes = Get(OverworldTilePropertiesOffset, MapTileCount*2);
+			var tileProperties = new ushort[MapTileCount];
+			Buffer.BlockCopy(propertyBytes, 0, tileProperties, 0, propertyBytes.Length);
+
+			Tileset = new Tileset(subTiles, formations, palette, paletteOffsets, tileProperties);
 		}
 
 		public void SaveOverworldMap()
@@ -89,8 +94,12 @@ namespace FF4
 			Map.GetCompressedData(out data, out pointers);
 			Buffer.BlockCopy(pointers, 0, pointerBytes, 0, pointerBytes.Length);
 
+			byte[] propertyBytes = new byte[MapTileCount*2];
+			Buffer.BlockCopy(Tileset.TileProperties, 0, propertyBytes, 0, propertyBytes.Length);
+
 			Put(OverworldRowDataOffset, data);
 			Put(OverworldRowPointersOffset, pointerBytes);
+			Put(OverworldTilePropertiesOffset, propertyBytes);
 		}
 	}
 }

@@ -43,6 +43,44 @@ namespace FF4MapEdit
 		public MainWindow()
 		{
 			InitializeComponent();
+
+			WalkCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Walk, true);
+			ChocoboWalkCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.ChocoboWalk, true);
+			BlackChocoboFlyCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BlackChocoboFly, true);
+			BlackChocoboLandCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BlackChocoboLand, true);
+			HovercraftCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Hovercraft, true);
+			AirshipFlyCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.AirshipFly, true);
+			Walk2CheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Walk2, true);
+			BigWhaleFlyCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BigWhaleFly, true);
+			ObscuresHalfCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.ObscuresHalf, true);
+			AirshipLandCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.AirshipLand, true);
+			EnemyEncountersCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.EnemyEncounters, true);
+			EntranceCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Entrance, true);
+
+			WalkCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Walk, false);
+			ChocoboWalkCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.ChocoboWalk, false);
+			BlackChocoboFlyCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BlackChocoboFly, false);
+			BlackChocoboLandCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BlackChocoboLand, false);
+			HovercraftCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Hovercraft, false);
+			AirshipFlyCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.AirshipFly, false);
+			Walk2CheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Walk2, false);
+			BigWhaleFlyCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BigWhaleFly, false);
+			ObscuresHalfCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.ObscuresHalf, false);
+			AirshipLandCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.AirshipLand, false);
+			EnemyEncountersCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.EnemyEncounters, false);
+			EntranceCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Entrance, false);
+		}
+
+		private void OnPropertyCheckBoxCheckChanged(WorldTileProperties property, bool isChecked)
+		{
+			if (isChecked)
+			{
+				_rom.Tileset.TileProperties[_selectedTile] |= (ushort)property;
+			}
+			else
+			{
+				_rom.Tileset.TileProperties[_selectedTile] &= (ushort)~property;
+			}
 		}
 
 		private void OpenButton_Click(object sender, RoutedEventArgs e)
@@ -97,11 +135,19 @@ namespace FF4MapEdit
 
 			_selectedTile = 16*y + x;
 
+			HighlightSelectedTile(x, y);
+
+			CheckTilePropertyBoxes();
+			TilePropertiesGrid.Visibility = Visibility.Visible;
+		}
+
+		private void HighlightSelectedTile(int x, int y)
+		{
 			var tileGroup = (DrawingGroup)((DrawingImage)Tileset.Source).Drawing;
 			tileGroup.Children.Remove(_selectedTileDrawing);
 
 			var geometry = new GeometryGroup();
-			geometry.Children.Add(new RectangleGeometry(new Rect(new Point(16*x, 16*y), new Size(16, 16))));
+			geometry.Children.Add(new RectangleGeometry(new Rect(new Point(16*x + 1, 16*y + 1), new Size(14, 14))));
 			_selectedTileDrawing = new GeometryDrawing
 			{
 				Geometry = geometry,
@@ -110,6 +156,24 @@ namespace FF4MapEdit
 			};
 
 			tileGroup.Children.Add(_selectedTileDrawing);
+		}
+
+		private void CheckTilePropertyBoxes()
+		{
+			var tileProperties = (WorldTileProperties)_rom.Tileset.TileProperties[_selectedTile];
+
+			WalkCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Walk);
+			ChocoboWalkCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.ChocoboWalk);
+			BlackChocoboFlyCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.BlackChocoboFly);
+			BlackChocoboLandCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.BlackChocoboLand);
+			HovercraftCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Hovercraft);
+			AirshipFlyCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.AirshipFly);
+			Walk2CheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Walk2);
+			BigWhaleFlyCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.BigWhaleFly);
+			ObscuresHalfCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.ObscuresHalf);
+			AirshipLandCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.AirshipLand);
+			EnemyEncountersCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.EnemyEncounters);
+			EntranceCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Entrance);
 		}
 
 		private void Map_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -225,7 +289,6 @@ namespace FF4MapEdit
 			}
 
 			Map.Source = new DrawingImage(rowGroup);
-			Map.Stretch = Stretch.None;
 		}
 	}
 }

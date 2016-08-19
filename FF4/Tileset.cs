@@ -9,10 +9,11 @@ namespace FF4
 	public class Tileset
 	{
 		private readonly ushort[][] _tilesetBytes;
+		public ushort[] TileProperties { get; private set; }
 
 		public ushort[] this[int tileIndex] => _tilesetBytes[tileIndex];
 
-		public Tileset(byte[] subTiles, byte[] formations, ushort[] palette, byte[] paletteOffsets)
+		public Tileset(byte[] subTiles, byte[] formations, ushort[] palette, byte[] paletteOffsets, ushort[] tileProperties)
 		{
 			RgbToBgr(palette);
 
@@ -30,6 +31,8 @@ namespace FF4
 				subTileIndex = formations[i + 3 * tileCount];
 				CopySubTileToTile(subTiles, 32 * subTileIndex, _tilesetBytes[i], 8 * 16 + 8, palette, paletteOffsets[subTileIndex]);
 			}
+
+			TileProperties = tileProperties;
 		}
 
 		private void CopySubTileToTile(byte[] subTiles, int subTilesOffset, ushort[] tile, int tileOffset, ushort[] palette, int paletteOffset)
