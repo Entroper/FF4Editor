@@ -25,6 +25,9 @@ namespace FF4MapEdit
 		private FF4Rom _rom;
 		private string _filename;
 
+		private Tileset _tileset;
+		private Map _map;
+
 		private int _selectedTile = -1;
 		private GeometryDrawing _selectedTileDrawing = new GeometryDrawing();
 		private WriteableBitmap[] _rowBitmaps;
@@ -75,11 +78,11 @@ namespace FF4MapEdit
 		{
 			if (isChecked)
 			{
-				_rom.Tileset.TileProperties[_selectedTile] |= (ushort)property;
+				_tileset.TileProperties[_selectedTile] |= (ushort)property;
 			}
 			else
 			{
-				_rom.Tileset.TileProperties[_selectedTile] &= (ushort)~property;
+				_tileset.TileProperties[_selectedTile] &= (ushort)~property;
 			}
 		}
 
@@ -109,11 +112,12 @@ namespace FF4MapEdit
 
 		private void SaveButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (_rom.Map != null)
+			if (_map != null)
 			{
 				try
 				{
-					_rom.SaveOverworldMap();
+					_rom.SaveOverworldMap(_map);
+					_rom.SaveOverworldTileset(_tileset);
 				}
 				catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Overworld map data is too big"))
 				{
@@ -126,8 +130,7 @@ namespace FF4MapEdit
 
 		private void Tileset_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
 		{
-			int x, y;
-			GetClickedTile(sender, e, out x, out y);
+			GetClickedTile(sender, e, out int x, out int y);
 			if (x < 0 || x >= 16 || y < 0 || y >= 8)
 			{
 				return;
@@ -160,7 +163,7 @@ namespace FF4MapEdit
 
 		private void CheckTilePropertyBoxes()
 		{
-			var tileProperties = (WorldTileProperties)_rom.Tileset.TileProperties[_selectedTile];
+			var tileProperties = (WorldTileProperties)_tileset.TileProperties[_selectedTile];
 
 			WalkCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Walk);
 			ChocoboWalkCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.ChocoboWalk);
@@ -183,8 +186,7 @@ namespace FF4MapEdit
 				return;
 			}
 
-			int x, y;
-			GetClickedTile(sender, e, out x, out y);
+			GetClickedTile(sender, e, out int  x, out int y);
 			if (x < 0 || x >= 256 || y < 0 || y >= 256)
 			{
 				return;
@@ -203,21 +205,20 @@ namespace FF4MapEdit
 		{
 			if (_painting)
 			{
-				int x, y;
-				GetClickedTile(sender, e, out x, out y);
+				GetClickedTile(sender, e, out int x, out int y);
 				Paint(x, y);
 			}
 		}
 
 		private void Paint(int x, int y)
 		{
-			_rom.Map[y, x] = (byte)_selectedTile;
+			_map[y, x] = (byte)_selectedTile;
 
 			_rowBitmaps[y].Lock();
-			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _rom.Tileset[_selectedTile], 16*2, 0);
+			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tileset[_selectedTile], 16*2, 0);
 			_rowBitmaps[y].Unlock();
 
-			SpaceUsed = _rom.Map.Length;
+			SpaceUsed = _map.Length;
 		}
 
 		private void GetClickedTile(object sender, MouseButtonEventArgs e, out int x, out int y)
@@ -242,12 +243,13 @@ namespace FF4MapEdit
 
 		private void LoadOverworld()
 		{
-			_rom.LoadOverworldMap();
+			_map = _rom.LoadOverworldMap();
+			_tileset = _rom.LoadOverworldTileset();
 
 			LoadOverworldTileset();
 			LoadOverworldTiles();
 
-			SpaceUsed = _rom.Map.Length;
+			SpaceUsed = _map.Length;
 		}
 
 		private void LoadOverworldTileset()
@@ -258,7 +260,7 @@ namespace FF4MapEdit
 			for (int i = 0; i < FF4Rom.MapTileCount; i++)
 			{
 				tileGroup.Children.Add(new ImageDrawing(
-					BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, _rom.Tileset[i], 16 * 2),
+					BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, _tileset[i], 16 * 2),
 					new Rect(new Point(16 * (i % 16), 16 * (i / 16)), new Size(16, 16))));
 			}
 
@@ -278,8 +280,8 @@ namespace FF4MapEdit
 				_rowBitmaps[y].Lock();
 				for (int x = 0; x < rowLength; x++)
 				{
-					var tile = _rom.Map[y, x];
-					_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _rom.Tileset[tile], 16*2, 0);
+					var tile = _map[y, x];
+					_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tileset[tile], 16*2, 0);
 				}
 
 				_rowBitmaps[y].Unlock();

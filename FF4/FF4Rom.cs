@@ -53,18 +53,18 @@ namespace FF4
 			return title == "FINAL FANTASY 2     ";
 		}
 
-		public Tileset Tileset { get; private set; }
-		public Map Map { get; private set; }
-
-		public void LoadOverworldMap()
+		public Map LoadOverworldMap()
 		{
 			var data = Get(OverworldRowDataOffset, OverworldRowDataMaxLength);
 			var pointerBytes = Get(OverworldRowPointersOffset, OverworldRowCount * 2);
 			var pointers = new ushort[OverworldRowCount];
 			Buffer.BlockCopy(pointerBytes, 0, pointers, 0, pointerBytes.Length);
 
-			Map = new Map(MapType.Overworld, data, pointers);
+			return new Map(MapType.Overworld, data, pointers);
+		}
 
+		public Tileset LoadOverworldTileset()
+		{
 			var subTiles = Get(OverworldSubTileGraphicsOffset, 32 * MapSubTileCount);
 			var formations = Get(OverworldTileFormationsOffset, 4 * MapTileCount);
 
@@ -77,28 +77,30 @@ namespace FF4
 			var tileProperties = new ushort[MapTileCount];
 			Buffer.BlockCopy(propertyBytes, 0, tileProperties, 0, propertyBytes.Length);
 
-			Tileset = new Tileset(subTiles, formations, palette, paletteOffsets, tileProperties);
+			return new Tileset(subTiles, formations, palette, paletteOffsets, tileProperties);
 		}
 
-		public void SaveOverworldMap()
+		public void SaveOverworldMap(Map map)
 		{
-			var length = Map.Length;
+			var length = map.Length;
 			if (length > OverworldRowDataMaxLength)
 			{
 				throw new IndexOutOfRangeException($"Overworld map data is too big: {length} bytes used, {OverworldRowDataMaxLength} bytes allowed");
 			}
 
-			byte[] data;
-			ushort[] pointers;
-			byte[] pointerBytes = new byte[OverworldRowCount*2];
-			Map.GetCompressedData(out data, out pointers);
+			byte[] pointerBytes = new byte[OverworldRowCount * 2];
+			map.GetCompressedData(out byte[] data, out ushort[] pointers);
 			Buffer.BlockCopy(pointers, 0, pointerBytes, 0, pointerBytes.Length);
-
-			byte[] propertyBytes = new byte[MapTileCount*2];
-			Buffer.BlockCopy(Tileset.TileProperties, 0, propertyBytes, 0, propertyBytes.Length);
 
 			Put(OverworldRowDataOffset, data);
 			Put(OverworldRowPointersOffset, pointerBytes);
+		}
+
+		public void SaveOverworldTileset(Tileset tileset)
+		{
+			byte[] propertyBytes = new byte[MapTileCount*2];
+			Buffer.BlockCopy(tileset.TileProperties, 0, propertyBytes, 0, propertyBytes.Length);
+
 			Put(OverworldTilePropertiesOffset, propertyBytes);
 		}
 	}
