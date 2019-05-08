@@ -24,7 +24,7 @@
 			</ToolBar>
 		</ToolBarTray>
 		<Image x:Name="Tileset" HorizontalAlignment="Left" Height="128" Margin="10,35,0,0" VerticalAlignment="Top" Width="256" MouseLeftButtonUp="Tileset_MouseLeftButtonUp" Stretch="None"/>
-		<ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="271,35,0,0" VerticalAlignment="Top">
+		<ScrollViewer x:Name="MapScrollViewer" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="271,35,0,0" VerticalAlignment="Top" ScrollChanged="ScrollViewer_ScrollChanged">
 			<Image x:Name="Map" HorizontalAlignment="Left" Height="4096" Margin="0,0,0,0" VerticalAlignment="Top" Width="4096" MouseLeftButtonUp="Map_MouseLeftButtonUp" MouseLeftButtonDown="Map_MouseLeftButtonDown" MouseMove="Map_MouseMove" Stretch="None"/>
 		</ScrollViewer>
 		<Label x:Name="SpaceUsedLabel" Content="" HorizontalAlignment="Left" Margin="10,433,0,0" VerticalAlignment="Top"/>

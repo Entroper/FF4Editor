@@ -302,6 +302,14 @@ namespace FF4MapEdit
 			}
 
 			Map.Source = new DrawingImage(rowGroup);
+			Map.Width = 16*_map.Width;
+			Map.Height = 16*_map.Height;
+		}
+
+		private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+		{
+			MapScrollViewer.ScrollToHorizontalOffset(Math.Round(MapScrollViewer.HorizontalOffset));
+			MapScrollViewer.ScrollToVerticalOffset(Math.Round(MapScrollViewer.VerticalOffset));
 		}
 	}
 }
