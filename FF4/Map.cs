@@ -13,11 +13,14 @@ namespace FF4
 		private readonly byte[][] _compressedRows;
 		private readonly int[] _compressedRowLengths;
 
-		public MapType MapType;
+		public readonly MapType MapType;
+
+		public readonly int Width;
+		public readonly int Height;
 
 		public byte this[int y, int x]
 		{
-			get { return _map[y, x]; }
+			get => _map[y, x];
 			set
 			{
 				_map[y, x] = value;
@@ -25,7 +28,7 @@ namespace FF4
 			}
 		}
 
-		public int Length => _compressedRowLengths.Sum();
+		public int CompressedSize => _compressedRowLengths.Sum();
 
 		public Map(MapType mapType, byte[] data, ushort[] pointers)
 		{
@@ -33,12 +36,13 @@ namespace FF4
 
 			if (mapType == MapType.Overworld)
 			{
-				var rowCount = FF4Rom.OverworldRowCount;
-				_map = new byte[rowCount, FF4Rom.OverworldRowLength];
-				_compressedRows = new byte[rowCount][];
-				_compressedRowLengths = new int[rowCount];
+				Height = FF4Rom.OverworldRowCount;
+				Width = FF4Rom.OverworldRowLength;
+				_map = new byte[Height, Width];
+				_compressedRows = new byte[Height][];
+				_compressedRowLengths = new int[Height];
 
-				for (int y = 0; y < rowCount; y++)
+				for (int y = 0; y < Height; y++)
 				{
 					var dataOffset = pointers[y];
 					var x = 0;
@@ -104,9 +108,9 @@ namespace FF4
 			if (MapType == MapType.Overworld)
 			{
 				data = new byte[FF4Rom.OverworldRowDataMaxLength];
-				pointers = new ushort[FF4Rom.OverworldRowCount];
+				pointers = new ushort[Height];
 				int dataOffset = 0;
-				for (int y = 0; y < FF4Rom.OverworldRowCount; y++)
+				for (int y = 0; y < Height; y++)
 				{
 					Buffer.BlockCopy(_compressedRows[y], 0, data, dataOffset, _compressedRowLengths[y]);
 					pointers[y] = (ushort)dataOffset;
@@ -123,18 +127,17 @@ namespace FF4
 
 		private void CompressRow(int y)
 		{
-			int rowLength = FF4Rom.OverworldRowLength;
-			_compressedRows[y] = new byte[rowLength + 1]; // extra 0xFF at the end
+			_compressedRows[y] = new byte[Width + 1]; // extra 0xFF at the end
 
 			int x = 0, dataOffset = 0;
-			while (x < rowLength)
+			while (x < Width)
 			{
 				if (_map[y, x] == 0x00 || _map[y, x] == 0x10 || _map[y, x] == 0x20 || _map[y, x] == 0x30)
 				{
 					_compressedRows[y][dataOffset++] = _map[y, x];
 					x += 4;
 				}
-				else if (x == rowLength - 1)
+				else if (x == Width - 1)
 				{
 					_compressedRows[y][dataOffset++] = _map[y, x++];
 				}
@@ -143,7 +146,7 @@ namespace FF4
 					_compressedRows[y][dataOffset++] = (byte)(_map[y, x++] + 0x80);
 
 					byte repeatCount = 0;
-					while (x < rowLength && _map[y, x - 1] == _map[y, x])
+					while (x < Width && _map[y, x - 1] == _map[y, x])
 					{
 						x++;
 						repeatCount++;

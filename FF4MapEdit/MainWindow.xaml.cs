@@ -187,7 +187,7 @@ namespace FF4MapEdit
 			}
 
 			GetClickedTile(sender, e, out int  x, out int y);
-			if (x < 0 || x >= 256 || y < 0 || y >= 256)
+			if (x < 0 || x >= _map.Width || y < 0 || y >= _map.Height)
 			{
 				return;
 			}
@@ -218,7 +218,7 @@ namespace FF4MapEdit
 			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tileset[_selectedTile], 16*2, 0);
 			_rowBitmaps[y].Unlock();
 
-			SpaceUsed = _map.Length;
+			SpaceUsed = _map.CompressedSize;
 		}
 
 		private void GetClickedTile(object sender, MouseButtonEventArgs e, out int x, out int y)
@@ -249,7 +249,7 @@ namespace FF4MapEdit
 			LoadOverworldTileset();
 			LoadOverworldTiles();
 
-			SpaceUsed = _map.Length;
+			SpaceUsed = _map.CompressedSize;
 		}
 
 		private void LoadOverworldTileset()
@@ -272,13 +272,12 @@ namespace FF4MapEdit
 			var rowGroup = new DrawingGroup();
 			rowGroup.Open();
 
-			var rowLength = FF4Rom.OverworldRowLength;
-			_rowBitmaps = new WriteableBitmap[FF4Rom.OverworldRowCount];
+			_rowBitmaps = new WriteableBitmap[_map.Height];
 			for (int y = 0; y < FF4Rom.OverworldRowCount; y++)
 			{
-				_rowBitmaps[y] = new WriteableBitmap(16*256, 16, 72, 72, PixelFormats.Bgr555, null);
+				_rowBitmaps[y] = new WriteableBitmap(16*_map.Width, 16, 72, 72, PixelFormats.Bgr555, null);
 				_rowBitmaps[y].Lock();
-				for (int x = 0; x < rowLength; x++)
+				for (int x = 0; x < _map.Width; x++)
 				{
 					var tile = _map[y, x];
 					_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tileset[tile], 16*2, 0);
@@ -287,7 +286,7 @@ namespace FF4MapEdit
 				_rowBitmaps[y].Unlock();
 
 				rowGroup.Children.Add(new ImageDrawing(_rowBitmaps[y],
-					new Rect(new Point(0, 16*y), new Size(16*rowLength, 16))));
+					new Rect(new Point(0, 16*y), new Size(16* _map.Width, 16))));
 			}
 
 			Map.Source = new DrawingImage(rowGroup);

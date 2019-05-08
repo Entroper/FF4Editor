@@ -82,7 +82,7 @@ namespace FF4
 
 		public void SaveOverworldMap(Map map)
 		{
-			var length = map.Length;
+			var length = map.CompressedSize;
 			if (length > OverworldRowDataMaxLength)
 			{
 				throw new IndexOutOfRangeException($"Overworld map data is too big: {length} bytes used, {OverworldRowDataMaxLength} bytes allowed");
