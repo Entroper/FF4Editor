@@ -38,64 +38,75 @@ namespace FF4
 			{
 				Height = FF4Rom.OverworldRowCount;
 				Width = FF4Rom.OverworldRowLength;
-				_map = new byte[Height, Width];
-				_compressedRows = new byte[Height][];
-				_compressedRowLengths = new int[Height];
+			}
+			else if (mapType == MapType.Underworld)
+			{
+				Height = FF4Rom.UnderworldRowCount;
+				Width = FF4Rom.UnderworldRowLength;
+			}
+			else if (mapType == MapType.Moon)
+			{
+				Height = FF4Rom.MoonRowCount;
+				Width = FF4Rom.MoonRowLength;
+			}
 
-				for (int y = 0; y < Height; y++)
+			_map = new byte[Height, Width];
+			_compressedRows = new byte[Height][];
+			_compressedRowLengths = new int[Height];
+
+			for (int y = 0; y < Height; y++)
+			{
+				var dataOffset = pointers[y];
+				var x = 0;
+				byte tile = data[dataOffset++];
+				while (tile != 0xFF)
 				{
-					var dataOffset = pointers[y];
-					var x = 0;
-					byte tile = data[dataOffset++];
-					while (tile != 0xFF)
+					if (mapType == MapType.Overworld && tile == 0x00)
 					{
-						if (tile == 0x00)
-						{
-							_map[y, x++] = 0x00;
-							_map[y, x++] = 0x70;
-							_map[y, x++] = 0x71;
-							_map[y, x++] = 0x72;
-						}
-						else if (tile == 0x10)
-						{
-							_map[y, x++] = 0x10;
-							_map[y, x++] = 0x73;
-							_map[y, x++] = 0x74;
-							_map[y, x++] = 0x75;
-						}
-						else if (tile == 0x20)
-						{
-							_map[y, x++] = 0x20;
-							_map[y, x++] = 0x76;
-							_map[y, x++] = 0x77;
-							_map[y, x++] = 0x78;
-						}
-						else if (tile == 0x30)
-						{
-							_map[y, x++] = 0x30;
-							_map[y, x++] = 0x79;
-							_map[y, x++] = 0x7A;
-							_map[y, x++] = 0x7B;
-						}
-						else if (tile >= 0x80)
-						{
-							tile -= 0x80;
-							var count = data[dataOffset++] + 1;
-							for (int j = 0; j < count; j++)
-							{
-								_map[y, x++] = tile;
-							}
-						}
-						else
+						_map[y, x++] = 0x00;
+						_map[y, x++] = 0x70;
+						_map[y, x++] = 0x71;
+						_map[y, x++] = 0x72;
+					}
+					else if (mapType == MapType.Overworld && tile == 0x10)
+					{
+						_map[y, x++] = 0x10;
+						_map[y, x++] = 0x73;
+						_map[y, x++] = 0x74;
+						_map[y, x++] = 0x75;
+					}
+					else if (mapType == MapType.Overworld && tile == 0x20)
+					{
+						_map[y, x++] = 0x20;
+						_map[y, x++] = 0x76;
+						_map[y, x++] = 0x77;
+						_map[y, x++] = 0x78;
+					}
+					else if (mapType == MapType.Overworld && tile == 0x30)
+					{
+						_map[y, x++] = 0x30;
+						_map[y, x++] = 0x79;
+						_map[y, x++] = 0x7A;
+						_map[y, x++] = 0x7B;
+					}
+					else if (tile >= 0x80)
+					{
+						tile -= 0x80;
+						var count = data[dataOffset++] + 1;
+						for (int j = 0; j < count; j++)
 						{
 							_map[y, x++] = tile;
 						}
-
-						tile = data[dataOffset++];
+					}
+					else
+					{
+						_map[y, x++] = tile;
 					}
 
-					CompressRow(y);
+					tile = data[dataOffset++];
 				}
+
+				CompressRow(y);
 			}
 		}
 
@@ -132,7 +143,7 @@ namespace FF4
 			int x = 0, dataOffset = 0;
 			while (x < Width)
 			{
-				if (_map[y, x] == 0x00 || _map[y, x] == 0x10 || _map[y, x] == 0x20 || _map[y, x] == 0x30)
+				if (MapType == MapType.Overworld && (_map[y, x] == 0x00 || _map[y, x] == 0x10 || _map[y, x] == 0x20 || _map[y, x] == 0x30))
 				{
 					_compressedRows[y][dataOffset++] = _map[y, x];
 					x += 4;

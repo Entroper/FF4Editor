@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FF4MapEdit"
+        xmlns:ff4="clr-namespace:FF4;assembly=FF4"
         mc:Ignorable="d"
         Title="FF4MapEdit" Height="720" Width="1280">
 	<Grid>
@@ -15,6 +16,11 @@
 				<Button x:Name="SaveButton" ToolTip="Save" Click="SaveButton_Click">
 					<Image Source="icons/save.png"/>
 				</Button>
+				<ComboBox x:Name="MapComboBox" Width="300" SelectionChanged="MapComboBox_SelectionChanged">
+					<ComboBoxItem>Overworld</ComboBoxItem>
+					<ComboBoxItem>Underworld</ComboBoxItem>
+					<ComboBoxItem>Moon</ComboBoxItem>
+				</ComboBox>
 			</ToolBar>
 		</ToolBarTray>
 		<Image x:Name="Tileset" HorizontalAlignment="Left" Height="128" Margin="10,35,0,0" VerticalAlignment="Top" Width="256" MouseLeftButtonUp="Tileset_MouseLeftButtonUp" Stretch="None"/>

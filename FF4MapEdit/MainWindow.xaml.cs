@@ -38,7 +38,12 @@ namespace FF4MapEdit
 		{
 			set
 			{
-				SpaceUsedLabel.Content = $"Space used: {value}/{FF4Rom.OverworldRowDataMaxLength} bytes";
+				int maxLength =
+					_map.MapType == MapType.Overworld ? FF4Rom.OverworldRowDataMaxLength :
+					_map.MapType == MapType.Underworld ? FF4Rom.UnderworldRowDataMaxLength :
+					_map.MapType == MapType.Moon ? FF4Rom.MoonRowDataMaxLength : 0;
+
+				SpaceUsedLabel.Content = $"Space used: {value}/{maxLength} bytes";
 				SpaceUsedLabel.Foreground = value > FF4Rom.OverworldRowDataMaxLength ? Brushes.Red : Brushes.Black;
 			}
 		}
@@ -107,7 +112,7 @@ namespace FF4MapEdit
 
 			_filename = openFileDialog.FileName;
 
-			LoadOverworld();
+			LoadWorldMap(MapType.Overworld);
 		}
 
 		private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -116,8 +121,8 @@ namespace FF4MapEdit
 			{
 				try
 				{
-					_rom.SaveOverworldMap(_map);
-					_rom.SaveOverworldTileset(_tileset);
+					_rom.SaveWorldMap(_map);
+					_rom.SaveWorldMapTileset(_tileset);
 				}
 				catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Overworld map data is too big"))
 				{
@@ -142,6 +147,13 @@ namespace FF4MapEdit
 
 			CheckTilePropertyBoxes();
 			TilePropertiesGrid.Visibility = Visibility.Visible;
+		}
+
+		private void MapComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			var mapType = (MapType)Enum.Parse(typeof(MapType), ((ComboBoxItem)MapComboBox.SelectedItem).Content.ToString());
+			if (mapType != _map.MapType)
+				LoadWorldMap(mapType);
 		}
 
 		private void HighlightSelectedTile(int x, int y)
@@ -241,18 +253,18 @@ namespace FF4MapEdit
 			y /= 16;
 		}
 
-		private void LoadOverworld()
+		private void LoadWorldMap(MapType mapType)
 		{
-			_map = _rom.LoadOverworldMap();
-			_tileset = _rom.LoadOverworldTileset();
+			_map = _rom.LoadWorldMap(mapType);
+			_tileset = _rom.LoadWorldMapTileset(mapType);
 
-			LoadOverworldTileset();
-			LoadOverworldTiles();
+			LoadWorldMapTileset();
+			LoadWorldMapTiles();
 
 			SpaceUsed = _map.CompressedSize;
 		}
 
-		private void LoadOverworldTileset()
+		private void LoadWorldMapTileset()
 		{
 			var tileGroup = new DrawingGroup();
 			tileGroup.Children.Add(_selectedTileDrawing);
@@ -267,13 +279,13 @@ namespace FF4MapEdit
 			Tileset.Source = new DrawingImage(tileGroup);
 		}
 
-		private void LoadOverworldTiles()
+		private void LoadWorldMapTiles()
 		{
 			var rowGroup = new DrawingGroup();
 			rowGroup.Open();
 
 			_rowBitmaps = new WriteableBitmap[_map.Height];
-			for (int y = 0; y < FF4Rom.OverworldRowCount; y++)
+			for (int y = 0; y < _map.Height; y++)
 			{
 				_rowBitmaps[y] = new WriteableBitmap(16*_map.Width, 16, 72, 72, PixelFormats.Bgr555, null);
 				_rowBitmaps[y].Lock();

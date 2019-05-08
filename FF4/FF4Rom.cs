@@ -22,6 +22,8 @@ namespace FF4
 		public const int OverworldTilePropertiesOffset = 0xA0A80;
 
 		public const int UnderworldRowPointersOffset = 0xB0200;
+		public const int UnderworldRowDataOffset = 0xB4480;
+		public const int UnderworldRowDataMaxLength = 0x1D00;
 		public const int UnderworldRowCount = 256;
 		public const int UnderworldRowLength = 256;
 		public const int UnderworldSubTileGraphicsOffset = 0xEA000;
@@ -31,6 +33,8 @@ namespace FF4
 		public const int UnderworldTilePropertiesOffset = 0xA0B80;
 
 		public const int MoonRowPointersOffset = 0xB0400;
+		public const int MoonRowDataOffset = 0xB6180;
+		public const int MoonRowDataMaxLength = 0xA00;
 		public const int MoonRowCount = 64;
 		public const int MoonRowLength = 64;
 		public const int MoonSubTileGraphicsOffset = 0xEC000;
@@ -53,34 +57,88 @@ namespace FF4
 			return title == "FINAL FANTASY 2     ";
 		}
 
-		public Map LoadOverworldMap()
+		public Map LoadWorldMap(MapType mapType)
 		{
-			var data = Get(OverworldRowDataOffset, OverworldRowDataMaxLength);
-			var pointerBytes = Get(OverworldRowPointersOffset, OverworldRowCount * 2);
-			var pointers = new ushort[OverworldRowCount];
+			Blob data, pointerBytes;
+			int rowCount;
+
+			if (mapType == MapType.Overworld)
+			{
+				data = Get(OverworldRowDataOffset, OverworldRowDataMaxLength);
+				pointerBytes = Get(OverworldRowPointersOffset, OverworldRowCount * 2);
+				rowCount = OverworldRowCount;
+			}
+			else if (mapType == MapType.Underworld)
+			{
+				data = Get(UnderworldRowDataOffset, UnderworldRowDataMaxLength);
+				pointerBytes = Get(UnderworldRowPointersOffset, UnderworldRowCount * 2);
+				rowCount = UnderworldRowCount;
+			}
+			else if (mapType == MapType.Moon)
+			{
+				data = Get(MoonRowDataOffset, MoonRowDataMaxLength);
+				pointerBytes = Get(MoonRowPointersOffset, MoonRowCount * 2);
+				rowCount = MoonRowCount;
+			}
+			else
+			{
+				throw new ArgumentException("Invalid world map type");
+			}
+
+			var pointers = new ushort[rowCount];
 			Buffer.BlockCopy(pointerBytes, 0, pointers, 0, pointerBytes.Length);
 
-			return new Map(MapType.Overworld, data, pointers);
+			return new Map(mapType, data, pointers);
 		}
 
-		public Tileset LoadOverworldTileset()
+		public Tileset LoadWorldMapTileset(MapType mapType)
 		{
-			var subTiles = Get(OverworldSubTileGraphicsOffset, 32 * MapSubTileCount);
-			var formations = Get(OverworldTileFormationsOffset, 4 * MapTileCount);
+			Blob subTiles, formations, paletteBytes, paletteOffsets, propertyBytes;
+			if (mapType == MapType.Overworld)
+			{
+				subTiles = Get(OverworldSubTileGraphicsOffset, 32 * MapSubTileCount);
+				formations = Get(OverworldTileFormationsOffset, 4 * MapTileCount);
 
-			var paletteBytes = Get(OverworldPaletteOffset, 2 * 64);
+				paletteBytes = Get(OverworldPaletteOffset, 2 * 64);
+				paletteOffsets = Get(OverworldSubTilePaletteOffsetsOffset, MapSubTileCount);
+
+				propertyBytes = Get(OverworldTilePropertiesOffset, MapTileCount * 2);
+			}
+			else if (mapType == MapType.Underworld)
+			{
+				subTiles = Get(UnderworldSubTileGraphicsOffset, 32 * MapSubTileCount);
+				formations = Get(UnderworldTileFormationsOffset, 4 * MapTileCount);
+
+				paletteBytes = Get(UnderworldPaletteOffset, 2 * 64);
+				paletteOffsets = Get(UnderworldSubTilePaletteOffsetsOffset, MapSubTileCount);
+
+				propertyBytes = Get(UnderworldTilePropertiesOffset, MapTileCount * 2);
+			}
+			else if (mapType == MapType.Moon)
+			{
+				subTiles = Get(MoonSubTileGraphicsOffset, 32 * MapSubTileCount);
+				formations = Get(MoonTileFormationsOffset, 4 * MapTileCount);
+
+				paletteBytes = Get(MoonPaletteOffset, 2 * 64);
+				paletteOffsets = Get(MoonSubTilePaletteOffsetsOffset, MapSubTileCount);
+
+				propertyBytes = Get(MoonTilePropertiesOffset, MapTileCount * 2);
+			}
+			else
+			{
+				throw new ArgumentException("Invalid world map type");
+			}
+
 			var palette = new ushort[64];
 			Buffer.BlockCopy(paletteBytes, 0, palette, 0, 2 * 64);
-			var paletteOffsets = Get(OverworldSubTilePaletteOffsetsOffset, MapSubTileCount);
 
-			var propertyBytes = Get(OverworldTilePropertiesOffset, MapTileCount*2);
 			var tileProperties = new ushort[MapTileCount];
 			Buffer.BlockCopy(propertyBytes, 0, tileProperties, 0, propertyBytes.Length);
 
 			return new Tileset(subTiles, formations, palette, paletteOffsets, tileProperties);
 		}
 
-		public void SaveOverworldMap(Map map)
+		public void SaveWorldMap(Map map)
 		{
 			var length = map.CompressedSize;
 			if (length > OverworldRowDataMaxLength)
@@ -96,7 +154,7 @@ namespace FF4
 			Put(OverworldRowPointersOffset, pointerBytes);
 		}
 
-		public void SaveOverworldTileset(Tileset tileset)
+		public void SaveWorldMapTileset(Tileset tileset)
 		{
 			byte[] propertyBytes = new byte[MapTileCount*2];
 			Buffer.BlockCopy(tileset.TileProperties, 0, propertyBytes, 0, propertyBytes.Length);
