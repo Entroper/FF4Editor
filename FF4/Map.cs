@@ -112,27 +112,36 @@ namespace FF4
 
 		public void GetCompressedData(out byte[] data, out ushort[] pointers)
 		{
-			// Just for now until we cover all execution paths.
-			data = null;
-			pointers = null;
-
 			if (MapType == MapType.Overworld)
 			{
 				data = new byte[FF4Rom.OverworldRowDataMaxLength];
-				pointers = new ushort[Height];
-				int dataOffset = 0;
-				for (int y = 0; y < Height; y++)
-				{
-					Buffer.BlockCopy(_compressedRows[y], 0, data, dataOffset, _compressedRowLengths[y]);
-					pointers[y] = (ushort)dataOffset;
+			}
+			else if (MapType == MapType.Underworld)
+			{
+				data = new byte[FF4Rom.UnderworldRowDataMaxLength];
+			}
+			else if (MapType == MapType.Moon)
+			{
+				data = new byte[FF4Rom.MoonRowDataMaxLength];
+			}
+			else
+			{
+				throw new Exception("Invalid world map type");
+			}
 
-					dataOffset += _compressedRowLengths[y];
-				}
+			pointers = new ushort[Height];
+			int dataOffset = 0;
+			for (int y = 0; y < Height; y++)
+			{
+				Buffer.BlockCopy(_compressedRows[y], 0, data, dataOffset, _compressedRowLengths[y]);
+				pointers[y] = (ushort)dataOffset;
 
-				while (dataOffset < data.Length)
-				{
-					data[dataOffset++] = 0xFF;
-				}
+				dataOffset += _compressedRowLengths[y];
+			}
+
+			while (dataOffset < data.Length)
+			{
+				data[dataOffset++] = 0xFF;
 			}
 		}
 

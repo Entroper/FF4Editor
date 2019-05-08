@@ -119,17 +119,21 @@ namespace FF4MapEdit
 		{
 			if (_map != null)
 			{
-				try
-				{
-					_rom.SaveWorldMap(_map);
-					_rom.SaveWorldMapTileset(_tileset);
-				}
-				catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Overworld map data is too big"))
-				{
-					MessageBox.Show(ex.Message, "Error while saving");
-				}
-
+				SaveWorldMap();
 				_rom.Save(_filename);
+			}
+		}
+
+		private void SaveWorldMap()
+		{
+			try
+			{
+				_rom.SaveWorldMap(_map);
+				_rom.SaveWorldMapTileset(_map.MapType, _tileset);
+			}
+			catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("World map data is too big"))
+			{
+				MessageBox.Show(ex.Message, "Error while saving");
 			}
 		}
 
@@ -153,7 +157,10 @@ namespace FF4MapEdit
 		{
 			var mapType = (MapType)Enum.Parse(typeof(MapType), ((ComboBoxItem)MapComboBox.SelectedItem).Content.ToString());
 			if (mapType != _map.MapType)
+			{
+				SaveWorldMap();
 				LoadWorldMap(mapType);
+			}
 		}
 
 		private void HighlightSelectedTile(int x, int y)

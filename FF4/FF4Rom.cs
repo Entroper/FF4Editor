@@ -141,25 +141,53 @@ namespace FF4
 		public void SaveWorldMap(Map map)
 		{
 			var length = map.CompressedSize;
-			if (length > OverworldRowDataMaxLength)
+			int maxLength =
+				map.MapType == MapType.Overworld ? OverworldRowDataMaxLength :
+				map.MapType == MapType.Underworld ? UnderworldRowDataMaxLength :
+				map.MapType == MapType.Moon ? MoonRowDataMaxLength : 0;
+			if (length > maxLength)
 			{
-				throw new IndexOutOfRangeException($"Overworld map data is too big: {length} bytes used, {OverworldRowDataMaxLength} bytes allowed");
+				throw new IndexOutOfRangeException($"World map data is too big: {length} bytes used, {maxLength} bytes allowed");
 			}
 
-			byte[] pointerBytes = new byte[OverworldRowCount * 2];
+			byte[] pointerBytes = new byte[2*map.Height];
 			map.GetCompressedData(out byte[] data, out ushort[] pointers);
 			Buffer.BlockCopy(pointers, 0, pointerBytes, 0, pointerBytes.Length);
 
-			Put(OverworldRowDataOffset, data);
-			Put(OverworldRowPointersOffset, pointerBytes);
+			if (map.MapType == MapType.Overworld)
+			{
+				Put(OverworldRowDataOffset, data);
+				Put(OverworldRowPointersOffset, pointerBytes);
+			}
+			else if (map.MapType == MapType.Underworld)
+			{
+				Put(UnderworldRowDataOffset, data);
+				Put(UnderworldRowPointersOffset, pointerBytes);
+			}
+			else if (map.MapType == MapType.Moon)
+			{
+				Put(MoonRowDataOffset, data);
+				Put(MoonRowPointersOffset, pointerBytes);
+			}
 		}
 
-		public void SaveWorldMapTileset(Tileset tileset)
+		public void SaveWorldMapTileset(MapType mapType, Tileset tileset)
 		{
 			byte[] propertyBytes = new byte[MapTileCount*2];
 			Buffer.BlockCopy(tileset.TileProperties, 0, propertyBytes, 0, propertyBytes.Length);
 
-			Put(OverworldTilePropertiesOffset, propertyBytes);
+			if (mapType == MapType.Overworld)
+			{
+				Put(OverworldTilePropertiesOffset, propertyBytes);
+			}
+			else if (mapType == MapType.Underworld)
+			{
+				Put(UnderworldTilePropertiesOffset, propertyBytes);
+			}
+			else if (mapType == MapType.Moon)
+			{
+				Put(MoonTilePropertiesOffset, propertyBytes);
+			}
 		}
 	}
 }
