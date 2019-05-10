@@ -15,12 +15,12 @@ namespace FF4
 		BlackChocoboLand = 0x0008,
 		Hovercraft = 0x0010,
 		AirshipFly = 0x0020,
-		Walk2 = 0x0040,
+		WalkPlateau = 0x0040,
 		BigWhaleFly = 0x0080,
 		ObscuresHalf = 0x0800,
 		AirshipLand = 0x1000,
 		EnemyEncounters = 0x4000,
-		Entrance = 0x8000
+		Trigger = 0x8000
 	}
 
 	[Flags]
@@ -32,6 +32,6 @@ namespace FF4
 		ObscuresAll = 0x0400,
 		ObscuresHalf = 0x0800,
 		Exit = 0x1000,
-		Entrance = 0x8000
+		Trigger = 0x8000
 	}
 }

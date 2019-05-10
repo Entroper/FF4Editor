@@ -35,12 +35,12 @@
 			<CheckBox x:Name="BlackChocoboLandCheckBox" Content="Black Chocobo Land" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="HovercraftCheckBox" Content="Hovercraft" HorizontalAlignment="Left" Margin="10,90,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="AirshipFlyCheckBox" Content="Airship Fly" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top"/>
-			<CheckBox x:Name="Walk2CheckBox" Content="Walk 2?" HorizontalAlignment="Left" Margin="10,130,0,0" VerticalAlignment="Top"/>
+			<CheckBox x:Name="WalkPlateauCheckBox" Content="Walk Plateau" HorizontalAlignment="Left" Margin="10,130,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="BigWhaleFlyCheckBox" Content="Big Whale Fly" HorizontalAlignment="Left" Margin="10,150,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="ObscuresHalfCheckBox" Content="Obscures Half" HorizontalAlignment="Left" Margin="10,170,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="AirshipLandCheckBox" Content="Airship Land" HorizontalAlignment="Left" Margin="10,190,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="EnemyEncountersCheckBox" Content="Enemy Encounters" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top"/>
-			<CheckBox x:Name="EntranceCheckBox" Content="Entrance" HorizontalAlignment="Left" Margin="10,230,0,0" VerticalAlignment="Top"/>
+			<CheckBox x:Name="TriggerCheckBox" Content="Trigger" HorizontalAlignment="Left" Margin="10,230,0,0" VerticalAlignment="Top"/>
 		</Grid>
 	</Grid>
 </Window>

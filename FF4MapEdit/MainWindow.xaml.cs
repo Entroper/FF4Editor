@@ -58,12 +58,12 @@ namespace FF4MapEdit
 			BlackChocoboLandCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BlackChocoboLand, true);
 			HovercraftCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Hovercraft, true);
 			AirshipFlyCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.AirshipFly, true);
-			Walk2CheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Walk2, true);
+			WalkPlateauCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.WalkPlateau, true);
 			BigWhaleFlyCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BigWhaleFly, true);
 			ObscuresHalfCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.ObscuresHalf, true);
 			AirshipLandCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.AirshipLand, true);
 			EnemyEncountersCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.EnemyEncounters, true);
-			EntranceCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Entrance, true);
+			TriggerCheckBox.Checked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Trigger, true);
 
 			WalkCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Walk, false);
 			ChocoboWalkCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.ChocoboWalk, false);
@@ -71,12 +71,12 @@ namespace FF4MapEdit
 			BlackChocoboLandCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BlackChocoboLand, false);
 			HovercraftCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Hovercraft, false);
 			AirshipFlyCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.AirshipFly, false);
-			Walk2CheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Walk2, false);
+			WalkPlateauCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.WalkPlateau, false);
 			BigWhaleFlyCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.BigWhaleFly, false);
 			ObscuresHalfCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.ObscuresHalf, false);
 			AirshipLandCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.AirshipLand, false);
 			EnemyEncountersCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.EnemyEncounters, false);
-			EntranceCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Entrance, false);
+			TriggerCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Trigger, false);
 		}
 
 		private void OnPropertyCheckBoxCheckChanged(WorldTileProperties property, bool isChecked)
@@ -190,12 +190,12 @@ namespace FF4MapEdit
 			BlackChocoboLandCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.BlackChocoboLand);
 			HovercraftCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Hovercraft);
 			AirshipFlyCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.AirshipFly);
-			Walk2CheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Walk2);
+			WalkPlateauCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.WalkPlateau);
 			BigWhaleFlyCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.BigWhaleFly);
 			ObscuresHalfCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.ObscuresHalf);
 			AirshipLandCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.AirshipLand);
 			EnemyEncountersCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.EnemyEncounters);
-			EntranceCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Entrance);
+			TriggerCheckBox.IsChecked = tileProperties.HasFlag(WorldTileProperties.Trigger);
 		}
 
 		private void Map_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
