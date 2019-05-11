@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Hovercraft.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="RomUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RomUtilities.1.0.0\lib\net45\RomUtilities.dll</HintPath>
@@ -102,6 +105,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Hovercraft.ico" />
     <Content Include="icons\open.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
