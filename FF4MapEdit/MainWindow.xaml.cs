@@ -147,6 +147,9 @@ namespace FF4MapEdit
 			LoadWorldMapTiles();
 
 			SpaceUsed = _map.CompressedSize;
+
+			SelectTile(0, 0);
+			TilePropertiesGrid.Visibility = Visibility.Visible;
 		}
 
 		private void LoadWorldMapTileset()
@@ -212,12 +215,16 @@ namespace FF4MapEdit
 				return;
 			}
 
-			_selectedTile = 16*y + x;
+			SelectTile(x, y);
+		}
+
+		private void SelectTile(int x, int y)
+		{
+			_selectedTile = 16 * y + x;
 
 			HighlightSelectedTile(x, y);
 
 			CheckTilePropertyBoxes();
-			TilePropertiesGrid.Visibility = Visibility.Visible;
 		}
 
 		private void HighlightSelectedTile(int x, int y)
