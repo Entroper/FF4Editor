@@ -113,6 +113,10 @@ namespace FF4MapEdit
 			_filename = openFileDialog.FileName;
 
 			LoadWorldMap(MapType.Overworld);
+
+			MapComboBox.Items.Add(new ComboBoxItem { Tag = MapType.Overworld, Content = "Overworld", IsSelected = true });
+			MapComboBox.Items.Add(new ComboBoxItem { Tag = MapType.Underworld, Content = "Underworld" });
+			MapComboBox.Items.Add(new ComboBoxItem { Tag = MapType.Moon, Content = "Moon" });
 		}
 
 		private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -122,6 +126,69 @@ namespace FF4MapEdit
 				SaveWorldMap();
 				_rom.Save(_filename);
 			}
+		}
+
+		private void MapComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			var mapType = (MapType)MapComboBox.SelectedValue;
+			if (mapType != _map.MapType)
+			{
+				SaveWorldMap();
+				LoadWorldMap(mapType);
+			}
+		}
+
+		private void LoadWorldMap(MapType mapType)
+		{
+			_map = _rom.LoadWorldMap(mapType);
+			_tileset = _rom.LoadWorldMapTileset(mapType);
+
+			LoadWorldMapTileset();
+			LoadWorldMapTiles();
+
+			SpaceUsed = _map.CompressedSize;
+		}
+
+		private void LoadWorldMapTileset()
+		{
+			var tileGroup = new DrawingGroup();
+			tileGroup.Children.Add(_selectedTileDrawing);
+
+			for (int i = 0; i < FF4Rom.MapTileCount; i++)
+			{
+				tileGroup.Children.Add(new ImageDrawing(
+					BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, _tileset[i], 16 * 2),
+					new Rect(new Point(16 * (i % 16), 16 * (i / 16)), new Size(16, 16))));
+			}
+
+			Tileset.Source = new DrawingImage(tileGroup);
+		}
+
+		private void LoadWorldMapTiles()
+		{
+			var rowGroup = new DrawingGroup();
+			rowGroup.Open();
+
+			_rowBitmaps = new WriteableBitmap[_map.Height];
+			for (int y = 0; y < _map.Height; y++)
+			{
+				_rowBitmaps[y] = new WriteableBitmap(16 * _map.Width, 16, 72, 72, PixelFormats.Bgr555, null);
+				_rowBitmaps[y].Lock();
+				for (int x = 0; x < _map.Width; x++)
+				{
+					var tile = _map[y, x];
+					_rowBitmaps[y].WritePixels(new Int32Rect(16 * x, 0, 16, 16), _tileset[tile], 16 * 2, 0);
+				}
+
+				_rowBitmaps[y].Unlock();
+
+				rowGroup.Children.Add(new ImageDrawing(_rowBitmaps[y],
+					new Rect(new Point(0, 16 * y), new Size(16 * _map.Width, 16))));
+			}
+
+			Map.Source = new DrawingImage(rowGroup);
+			Map.Width = 16 * _map.Width;
+			Map.Height = 16 * _map.Height;
 		}
 
 		private void SaveWorldMap()
@@ -151,16 +218,6 @@ namespace FF4MapEdit
 
 			CheckTilePropertyBoxes();
 			TilePropertiesGrid.Visibility = Visibility.Visible;
-		}
-
-		private void MapComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			var mapType = (MapType)Enum.Parse(typeof(MapType), ((ComboBoxItem)MapComboBox.SelectedItem).Content.ToString());
-			if (mapType != _map.MapType)
-			{
-				SaveWorldMap();
-				LoadWorldMap(mapType);
-			}
 		}
 
 		private void HighlightSelectedTile(int x, int y)
@@ -258,59 +315,6 @@ namespace FF4MapEdit
 			y = (int)position.Y;
 			x /= 16;
 			y /= 16;
-		}
-
-		private void LoadWorldMap(MapType mapType)
-		{
-			_map = _rom.LoadWorldMap(mapType);
-			_tileset = _rom.LoadWorldMapTileset(mapType);
-
-			LoadWorldMapTileset();
-			LoadWorldMapTiles();
-
-			SpaceUsed = _map.CompressedSize;
-		}
-
-		private void LoadWorldMapTileset()
-		{
-			var tileGroup = new DrawingGroup();
-			tileGroup.Children.Add(_selectedTileDrawing);
-
-			for (int i = 0; i < FF4Rom.MapTileCount; i++)
-			{
-				tileGroup.Children.Add(new ImageDrawing(
-					BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, _tileset[i], 16 * 2),
-					new Rect(new Point(16 * (i % 16), 16 * (i / 16)), new Size(16, 16))));
-			}
-
-			Tileset.Source = new DrawingImage(tileGroup);
-		}
-
-		private void LoadWorldMapTiles()
-		{
-			var rowGroup = new DrawingGroup();
-			rowGroup.Open();
-
-			_rowBitmaps = new WriteableBitmap[_map.Height];
-			for (int y = 0; y < _map.Height; y++)
-			{
-				_rowBitmaps[y] = new WriteableBitmap(16*_map.Width, 16, 72, 72, PixelFormats.Bgr555, null);
-				_rowBitmaps[y].Lock();
-				for (int x = 0; x < _map.Width; x++)
-				{
-					var tile = _map[y, x];
-					_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tileset[tile], 16*2, 0);
-				}
-
-				_rowBitmaps[y].Unlock();
-
-				rowGroup.Children.Add(new ImageDrawing(_rowBitmaps[y],
-					new Rect(new Point(0, 16*y), new Size(16* _map.Width, 16))));
-			}
-
-			Map.Source = new DrawingImage(rowGroup);
-			Map.Width = 16*_map.Width;
-			Map.Height = 16*_map.Height;
 		}
 
 		private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
