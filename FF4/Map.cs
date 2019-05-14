@@ -21,11 +21,7 @@ namespace FF4
 		public byte this[int y, int x]
 		{
 			get => _map[y, x];
-			set
-			{
-				_map[y, x] = value;
-				CompressRow(y);
-			}
+			set => _map[y, x] = value;
 		}
 
 		public int CompressedSize => _compressedRowLengths.Sum();
@@ -145,7 +141,7 @@ namespace FF4
 			}
 		}
 
-		private void CompressRow(int y)
+		public void CompressRow(int y)
 		{
 			_compressedRows[y] = new byte[Width + 1]; // extra 0xFF at the end
 

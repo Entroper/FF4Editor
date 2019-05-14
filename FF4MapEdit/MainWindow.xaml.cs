@@ -28,11 +28,22 @@ namespace FF4MapEdit
 		private Tileset _tileset;
 		private Map _map;
 
-		private int _selectedTile = -1;
+		private byte _selectedTile;
 		private GeometryDrawing _selectedTileDrawing = new GeometryDrawing();
 		private WriteableBitmap[] _rowBitmaps;
 
 		private bool _painting = false;
+
+		private struct PaintedTile
+		{
+			public int X, Y;
+			public byte OldTile;
+			public byte NewTile;
+		}
+
+		private List<PaintedTile> _paintingTiles = new List<PaintedTile>();
+		private readonly Stack<List<PaintedTile>> _undoStack = new Stack<List<PaintedTile>>();
+		private readonly Stack<List<PaintedTile>> _redoStack = new Stack<List<PaintedTile>>();
 
 		private int SpaceUsed
 		{
@@ -220,7 +231,7 @@ namespace FF4MapEdit
 
 		private void SelectTile(int x, int y)
 		{
-			_selectedTile = 16 * y + x;
+			_selectedTile = (byte)(16 * y + x);
 
 			HighlightSelectedTile(x, y);
 
@@ -264,44 +275,127 @@ namespace FF4MapEdit
 
 		private void Map_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
-			if (_selectedTile == -1)
-			{
-				return;
-			}
-
-			GetClickedTile(sender, e, out int  x, out int y);
+			GetClickedTile(sender, e, out int x, out int y);
 			if (x < 0 || x >= _map.Width || y < 0 || y >= _map.Height)
 			{
 				return;
 			}
 
-			Paint(x, y);
-			_painting = true;
+			if (FloodFillButton.IsChecked == true)
+			{
+				FloodFill(x, y);
+			}
+			else
+			{
+				Paint(x, y);
+				_painting = true;
+			}
 		}
 
 		private void Map_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
 		{
 			_painting = false;
+
+			if (_paintingTiles.Count > 0)
+			{
+				RecompressMap(_paintingTiles);
+
+				_undoStack.Push(_paintingTiles);
+				_redoStack.Clear();
+				_paintingTiles = new List<PaintedTile>();
+			}
+		}
+
+		private void RecompressMap(List<PaintedTile> paintingTiles)
+		{
+			var rowsToCompress = paintingTiles.Select(tile => tile.Y).Distinct();
+			foreach (var row in rowsToCompress)
+			{
+				_map.CompressRow(row);
+			}
+
+			SpaceUsed = _map.CompressedSize;
+		}
+
+		private void Map_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+		{
+			GetClickedTile(sender, e, out int x, out int y);
+			if (x < 0 || x >= _map.Width || y < 0 || y >= _map.Height || _map[y, x] == _selectedTile)
+			{
+				return;
+			}
+
+			var selectedTile = _map[y, x];
+			SelectTile(selectedTile % 16, selectedTile / 16);
 		}
 
 		private void Map_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (_painting)
+			GetClickedTile(sender, e, out int x, out int y);
+			CoordinatesLabel.Content = $"Coordinates: ({x:X2}, {y:X2})";
+
+			if (_painting && !(x < 0 || x >= _map.Width || y < 0 || y >= _map.Height) && _map[y, x] != _selectedTile)
 			{
-				GetClickedTile(sender, e, out int x, out int y);
 				Paint(x, y);
 			}
 		}
 
 		private void Paint(int x, int y)
 		{
-			_map[y, x] = (byte)_selectedTile;
+			_paintingTiles.Add(new PaintedTile
+			{
+				X = x,
+				Y = y,
+				OldTile = _map[y, x],
+				NewTile = _selectedTile
+			});
+
+			SetTile(x, y, _selectedTile);
+		}
+
+		private void FloodFill(int x, int y)
+		{
+			var queue = new Queue<(int x, int y)>();
+			var fillingTile = _map[y, x];
+			if (fillingTile != _selectedTile)
+			{
+				Paint(x, y);
+				queue.Enqueue((x, y));
+			}
+
+			while (queue.Count > 0)
+			{
+				(x, y) = queue.Dequeue();
+				if (x > 0 && _map[y, x - 1] == fillingTile)
+				{
+					Paint(x - 1, y);
+					queue.Enqueue((x - 1, y));
+				}
+				if (x < _map.Width - 1 && _map[y, x + 1] == fillingTile)
+				{
+					Paint(x + 1, y);
+					queue.Enqueue((x + 1, y));
+				}
+				if (y > 0 && _map[y - 1, x] == fillingTile)
+				{
+					Paint(x, y - 1);
+					queue.Enqueue((x, y - 1));
+				}
+				if (y < _map.Height - 1 && _map[y + 1, x] == fillingTile)
+				{
+					Paint(x, y + 1);
+					queue.Enqueue((x, y + 1));
+				}
+			}
+		}
+
+		private void SetTile(int x, int y, byte tile)
+		{
+			_map[y, x] = tile;
 
 			_rowBitmaps[y].Lock();
-			_rowBitmaps[y].WritePixels(new Int32Rect(16*x, 0, 16, 16), _tileset[_selectedTile], 16*2, 0);
+			_rowBitmaps[y].WritePixels(new Int32Rect(16 * x, 0, 16, 16), _tileset[tile], 16 * 2, 0);
 			_rowBitmaps[y].Unlock();
-
-			SpaceUsed = _map.CompressedSize;
 		}
 
 		private void GetClickedTile(object sender, MouseButtonEventArgs e, out int x, out int y)
@@ -322,6 +416,58 @@ namespace FF4MapEdit
 			y = (int)position.Y;
 			x /= 16;
 			y /= 16;
+		}
+
+		private void Undo_Executed(object sender, ExecutedRoutedEventArgs args)
+		{
+			Undo();
+		}
+
+		private void Redo_Executed(object sender, ExecutedRoutedEventArgs args)
+		{
+			Redo();
+		}
+
+		private void UndoButton_OnClick(object sender, RoutedEventArgs e)
+		{
+			Undo();
+		}
+
+		private void RedoButton_OnClick(object sender, RoutedEventArgs e)
+		{
+			Redo();
+		}
+
+		private void Undo()
+		{
+			if (_undoStack.Count > 0)
+			{
+				var undo = _undoStack.Pop();
+				foreach (var painting in undo)
+				{
+					SetTile(painting.X, painting.Y, painting.OldTile);
+				}
+
+				_redoStack.Push(undo);
+
+				RecompressMap(undo);
+			}
+		}
+
+		private void Redo()
+		{
+			if (_redoStack.Count > 0)
+			{
+				var redo = _redoStack.Pop();
+				foreach (var painting in redo)
+				{
+					SetTile(painting.X, painting.Y, painting.NewTile);
+				}
+
+				_undoStack.Push(redo);
+
+				RecompressMap(redo);
+			}
 		}
 
 		private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)

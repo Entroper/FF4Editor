@@ -8,23 +8,40 @@
         mc:Ignorable="d"
         Title="FF4MapEdit" Height="720" Width="1280">
 	<Grid>
-		<ToolBarTray Height="30" VerticalAlignment="Top" Margin="0,0,0,0">
-			<ToolBar x:Name="toolBar" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top">
+		<Grid.CommandBindings>
+			<CommandBinding Executed="Undo_Executed" Command="ApplicationCommands.Undo"/>
+			<CommandBinding Executed="Redo_Executed" Command="ApplicationCommands.Redo"/>
+		</Grid.CommandBindings>
+		<ToolBarTray Height="40" VerticalAlignment="Top" Margin="0,0,0,0">
+			<ToolBar x:Name="ToolBar" HorizontalAlignment="Left" VerticalAlignment="Top">
 				<Button x:Name="OpenButton" ToolTip="Open" Click="OpenButton_Click">
-					<Image Source="icons/open.png"/>
+					<Image Width="32" Height="32" Source="icons/iconfinder_folder_open_59927.png"/>
 				</Button>
 				<Button x:Name="SaveButton" ToolTip="Save" Click="SaveButton_Click">
-					<Image Source="icons/save.png"/>
+					<Image Width="32" Height="32" Source="icons/iconfinder_Save_1493294.png"/>
 				</Button>
-				<ComboBox x:Name="MapComboBox" Width="300" SelectedValuePath="Tag" SelectionChanged="MapComboBox_SelectionChanged" />
+				<ComboBox x:Name="MapComboBox" Width="300" Height="32" SelectedValuePath="Tag" SelectionChanged="MapComboBox_SelectionChanged" />
+			</ToolBar>
+			<ToolBar>
+				<ToggleButton x:Name="GridButton" ToolTip="Toggle Grid Lines">
+					<Image Width="32" Height="32" Source="icons/iconfinder_Grid_131737.png"></Image>
+				</ToggleButton>
+				<ToggleButton x:Name="FloodFillButton" ToolTip="Flood Fill">
+					<Image Width="32" Height="32" Source="icons/iconfinder_fill_44683.png"></Image>
+				</ToggleButton>
+				<Button x:Name="UndoButton" ToolTip="Undo" Click="UndoButton_OnClick">
+					<Image Width="32" Height="32" Source="icons/iconfinder_arrow-undo_59818.png"></Image>
+				</Button>
+				<Button x:Name="RedoButton" ToolTip="Redo" Click="RedoButton_OnClick">
+					<Image Width="32" Height="32" Source="icons/iconfinder_arrow-redo_59814.png"></Image>
+				</Button>
 			</ToolBar>
 		</ToolBarTray>
-		<Image x:Name="Tileset" HorizontalAlignment="Left" Height="128" Margin="10,35,0,0" VerticalAlignment="Top" Width="256" MouseLeftButtonUp="Tileset_MouseLeftButtonUp" Stretch="None"/>
-		<ScrollViewer x:Name="MapScrollViewer" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="271,35,0,0" VerticalAlignment="Top" ScrollChanged="ScrollViewer_ScrollChanged">
-			<Image x:Name="Map" HorizontalAlignment="Left" Height="4096" Margin="0,0,0,0" VerticalAlignment="Top" Width="4096" MouseLeftButtonUp="Map_MouseLeftButtonUp" MouseLeftButtonDown="Map_MouseLeftButtonDown" MouseMove="Map_MouseMove" Stretch="None"/>
+		<Image x:Name="Tileset" HorizontalAlignment="Left" Height="128" Margin="10,43,0,0" VerticalAlignment="Top" Width="256" MouseLeftButtonUp="Tileset_MouseLeftButtonUp" Stretch="None"/>
+		<ScrollViewer x:Name="MapScrollViewer" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="271,43,0,0" VerticalAlignment="Top" ScrollChanged="ScrollViewer_ScrollChanged">
+			<Image x:Name="Map" HorizontalAlignment="Left" Height="4096" Margin="0,0,0,0" VerticalAlignment="Top" Width="4096" MouseLeftButtonUp="Map_MouseLeftButtonUp" MouseLeftButtonDown="Map_MouseLeftButtonDown" MouseRightButtonDown="Map_MouseRightButtonDown" MouseMove="Map_MouseMove" Stretch="None"/>
 		</ScrollViewer>
-		<Label x:Name="SpaceUsedLabel" Content="" HorizontalAlignment="Left" Margin="10,433,0,0" VerticalAlignment="Top"/>
-		<Grid x:Name="TilePropertiesGrid" HorizontalAlignment="Left" Margin="10,168,0,0" VerticalAlignment="Top" Width="256" Height="260" Visibility="Hidden">
+		<Grid x:Name="TilePropertiesGrid" HorizontalAlignment="Left" Margin="10,176,0,0" VerticalAlignment="Top" Width="256" Height="260" Visibility="Hidden">
 			<CheckBox x:Name="WalkCheckBox" Content="Walk" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="ChocoboWalkCheckBox" Content="Chocobo Walk" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="BlackChocoboFlyCheckBox" Content="Black Chocobo Fly" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top"/>
@@ -38,5 +55,7 @@
 			<CheckBox x:Name="EnemyEncountersCheckBox" Content="Enemy Encounters" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="TriggerCheckBox" Content="Trigger" HorizontalAlignment="Left" Margin="10,230,0,0" VerticalAlignment="Top"/>
 		</Grid>
+		<Label x:Name="SpaceUsedLabel" Content="" HorizontalAlignment="Left" Margin="10,441,0,0" VerticalAlignment="Top"/>
+		<Label x:Name="CoordinatesLabel" Content="" HorizontalAlignment="Left" Margin="10,476,0,0" VerticalAlignment="Top"/>
 	</Grid>
 </Window>
