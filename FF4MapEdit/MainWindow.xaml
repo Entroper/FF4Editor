@@ -23,7 +23,7 @@
 				<ComboBox x:Name="MapComboBox" Width="300" Height="32" SelectedValuePath="Tag" SelectionChanged="MapComboBox_SelectionChanged" />
 			</ToolBar>
 			<ToolBar>
-				<ToggleButton x:Name="GridButton" ToolTip="Toggle Grid Lines">
+				<ToggleButton x:Name="GridLinesButton" ToolTip="Toggle Grid Lines" Checked="GridLinesButton_OnChecked" Unchecked="GridLinesButton_OnUnchecked">
 					<Image Width="32" Height="32" Source="icons/iconfinder_Grid_131737.png"></Image>
 				</ToggleButton>
 				<ToggleButton x:Name="FloodFillButton" ToolTip="Flood Fill">

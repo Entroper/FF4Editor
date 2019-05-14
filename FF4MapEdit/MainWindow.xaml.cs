@@ -30,6 +30,7 @@ namespace FF4MapEdit
 
 		private byte _selectedTile;
 		private GeometryDrawing _selectedTileDrawing = new GeometryDrawing();
+		private GeometryDrawing _gridLinesDrawing = new GeometryDrawing();
 		private WriteableBitmap[] _rowBitmaps;
 
 		private bool _painting = false;
@@ -200,9 +201,30 @@ namespace FF4MapEdit
 					new Rect(new Point(0, 16 * y), new Size(16 * _map.Width, 16))));
 			}
 
-			Map.Source = new DrawingImage(rowGroup);
 			Map.Width = 16 * _map.Width;
 			Map.Height = 16 * _map.Height;
+
+			var geometry = new GeometryGroup();
+			for (int x = 0; x <= _map.Width; x++)
+			{
+				geometry.Children.Add(new LineGeometry(new Point(16 * x, 0), new Point(16 * x, Map.Height)));
+			}
+			for (int y = 0; y <= _map.Height; y++)
+			{
+				geometry.Children.Add(new LineGeometry(new Point(0, 16 * y), new Point(Map.Width, 16 * y)));
+			}
+			_gridLinesDrawing = new GeometryDrawing
+			{
+				Geometry = geometry,
+				Brush = Brushes.Transparent,
+				Pen = new Pen(Brushes.Black, 1)
+			};
+			if (GridLinesButton.IsChecked == true)
+			{
+				rowGroup.Children.Add(_gridLinesDrawing);
+			}
+
+			Map.Source = new DrawingImage(rowGroup);
 		}
 
 		private void SaveWorldMap()
@@ -253,6 +275,18 @@ namespace FF4MapEdit
 			};
 
 			tileGroup.Children.Add(_selectedTileDrawing);
+		}
+
+		private void GridLinesButton_OnChecked(object sender, RoutedEventArgs e)
+		{
+			var rowGroup = (DrawingGroup)((DrawingImage)Map.Source).Drawing;
+			rowGroup.Children.Add(_gridLinesDrawing);
+		}
+
+		private void GridLinesButton_OnUnchecked(object sender, RoutedEventArgs e)
+		{
+			var rowGroup = (DrawingGroup)((DrawingImage)Map.Source).Drawing;
+			rowGroup.Children.Remove(_gridLinesDrawing);
 		}
 
 		private void CheckTilePropertyBoxes()
