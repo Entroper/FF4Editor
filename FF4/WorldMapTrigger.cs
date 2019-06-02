@@ -73,7 +73,7 @@ namespace FF4
 	{
 		public WorldMapEvent(byte[] bytes) : base(bytes) {}
 
-		public byte EventCode
+		public byte EventCall
 		{
 			get => Bytes[3];
 			set => Bytes[3] = value;

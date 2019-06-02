@@ -23,8 +23,9 @@ namespace FF4MapEdit
 		private readonly FF4Rom _rom;
 
 		private readonly ushort[] _pointers;
-		private readonly List<WorldMapTeleport> _teleports;
-		private readonly List<WorldMapEvent> _events;
+		private readonly List<WorldMapTrigger> _overworldTriggers;
+		private readonly List<WorldMapTrigger> _underworldTriggers;
+		private readonly List<WorldMapTrigger> _moonTriggers;
 
 		public WorldMapTriggersWindow(FF4Rom rom)
 		{
@@ -33,16 +34,38 @@ namespace FF4MapEdit
 			_rom = rom;
 
 			var triggers = _rom.LoadWorldMapTriggers(out _pointers);
-			_teleports = triggers.Where(trigger => trigger is WorldMapTeleport).Cast<WorldMapTeleport>().ToList();
-			_events = triggers.Where(trigger => trigger is WorldMapEvent).Cast<WorldMapEvent>().ToList();
+			var overworldTriggerCount = _pointers[1] / FF4Rom.WorldMapTriggerSize;
+			var underworldTriggerCount = _pointers[2] / FF4Rom.WorldMapTriggerSize - overworldTriggerCount;
+			var moonTriggerCount = FF4Rom.WorldMapTriggerCount - overworldTriggerCount - underworldTriggerCount;
+			_overworldTriggers = triggers.GetRange(0, overworldTriggerCount);
+			_underworldTriggers = triggers.GetRange(overworldTriggerCount, underworldTriggerCount);
+			_moonTriggers = triggers.GetRange(overworldTriggerCount + underworldTriggerCount, moonTriggerCount);
 
-			TeleportsDataGrid.ItemsSource = _teleports;
-			EventsDataGrid.ItemsSource = _events;
+			OverworldListView.ItemsSource = _overworldTriggers;
+			UnderworldListView.ItemsSource = _underworldTriggers;
+			MoonListView.ItemsSource = _moonTriggers;
 		}
 
 		private void Window_Closed(object sender, EventArgs e)
 		{
-			_rom.SaveWorldMapTriggers(_teleports.Cast<WorldMapTrigger>().Concat(_events).ToList(), _pointers);
+			_rom.SaveWorldMapTriggers(_overworldTriggers.Concat(_underworldTriggers).Concat(_moonTriggers).ToList(), _pointers);
+		}
+	}
+
+	public class WorldMapTriggerDataTemplateSelector : DataTemplateSelector
+	{
+		public override DataTemplate
+			SelectTemplate(object item, DependencyObject container)
+		{
+			if (container is FrameworkElement element && item != null)
+			{
+				if (item is WorldMapTeleport)
+					return element.FindResource("WorldMapTeleportTemplate") as DataTemplate;
+				else
+					return element.FindResource("WorldMapEventTemplate") as DataTemplate;
+			}
+
+			return null;
 		}
 	}
 }

@@ -15,28 +15,39 @@
 				<x:Type Type="ff4:FacingDirection"/>
 			</ObjectDataProvider.MethodParameters>
 		</ObjectDataProvider>
+		<local:WorldMapTriggerDataTemplateSelector x:Key="WorldMapTriggerDataTemplateSelector"/>
+		<DataTemplate x:Key="WorldMapTeleportTemplate" DataType="{x:Type ff4:WorldMapTeleport}">
+			<StackPanel Orientation="Horizontal">
+				<Label>Coords:</Label>
+				<TextBox Text="{Binding X}"/>
+				<TextBox Text="{Binding Y}"/>
+				<Label>Map:</Label>
+				<TextBox Text="{Binding DestinationMap}"/>
+				<Label>Dest:</Label>
+				<TextBox Text="{Binding DestinationX}"/>
+				<TextBox Text="{Binding DestinationY}"/>
+				<Label>Facing:</Label>
+				<ComboBox SelectedValue="{Binding FacingDirection}" ItemsSource="{Binding Source={StaticResource facingDirection}}"></ComboBox>
+			</StackPanel>
+		</DataTemplate>
+		<DataTemplate x:Key="WorldMapEventTemplate" DataType="{x:Type ff4:WorldMapEvent}">
+			<StackPanel Orientation="Horizontal">
+				<Label>Coords:</Label>
+				<TextBox Text="{Binding X}"/>
+				<TextBox Text="{Binding Y}"/>
+				<Label>Event Call:</Label>
+				<TextBox Text="{Binding EventCall}"/>
+			</StackPanel>
+		</DataTemplate>
 	</Window.Resources>
 	<ScrollViewer>
 		<StackPanel VerticalAlignment="Top">
-			<Label Margin="10,15,0,0">Teleports</Label>
-			<DataGrid x:Name="TeleportsDataGrid" RowHeaderWidth="0" AutoGenerateColumns="False" Margin="15" HorizontalAlignment="Left" VerticalAlignment="Top">
-				<DataGrid.Columns>
-					<DataGridTextColumn Header="X" Binding="{Binding X}"/>
-					<DataGridTextColumn Header="Y" Binding="{Binding Y}"/>
-					<DataGridTextColumn Header="Dest Map" Binding="{Binding DestinationMap}"/>
-					<DataGridTextColumn Header="Dest X" Binding="{Binding DestinationX}"/>
-					<DataGridTextColumn Header="Dest Y" Binding="{Binding DestinationY}"/>
-					<DataGridComboBoxColumn Header="Facing" SelectedValueBinding="{Binding FacingDirection}" ItemsSource="{Binding Source={StaticResource facingDirection}}"/>
-				</DataGrid.Columns>
-			</DataGrid>
-			<Label Margin="10,15,0,0">Events</Label>
-			<DataGrid x:Name="EventsDataGrid" RowHeaderWidth="0" AutoGenerateColumns="False" Margin="15" HorizontalAlignment="Left" VerticalAlignment="Top">
-				<DataGrid.Columns>
-					<DataGridTextColumn Header="X" Binding="{Binding X}"/>
-					<DataGridTextColumn Header="Y" Binding="{Binding Y}"/>
-					<DataGridTextColumn Header="Event Code" Binding="{Binding EventCode}"/>
-				</DataGrid.Columns>
-			</DataGrid>
+			<Label Margin="10,15,0,0">Overworld</Label>
+			<ListView x:Name="OverworldListView" ItemTemplateSelector="{StaticResource WorldMapTriggerDataTemplateSelector}"/>
+			<Label Margin="10,15,0,0">Underworld</Label>
+			<ListView x:Name="UnderworldListView" ItemTemplateSelector="{StaticResource WorldMapTriggerDataTemplateSelector}"/>
+			<Label Margin="10,15,0,0">Moon</Label>
+			<ListView x:Name="MoonListView" ItemTemplateSelector="{StaticResource WorldMapTriggerDataTemplateSelector}"/>
 	    </StackPanel>
     </ScrollViewer>
 </Window>
