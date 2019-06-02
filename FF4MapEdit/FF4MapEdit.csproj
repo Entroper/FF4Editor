@@ -63,6 +63,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="HexValueConverter.cs" />
     <Compile Include="WorldMapTriggersWindow.xaml.cs">
       <DependentUpon>WorldMapTriggersWindow.xaml</DependentUpon>
     </Compile>
