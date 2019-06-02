@@ -162,6 +162,8 @@ namespace FF4MapEdit
 
 			SelectTile(0, 0);
 			TilePropertiesGrid.Visibility = Visibility.Visible;
+
+			EditTriggersButton.Visibility = Visibility.Visible;
 		}
 
 		private void LoadWorldMapTileset()
@@ -502,6 +504,11 @@ namespace FF4MapEdit
 
 				RecompressMap(redo);
 			}
+		}
+
+		private void EditTriggersButton_Click(object sender, RoutedEventArgs e)
+		{
+			new WorldMapTriggersWindow(_rom).ShowDialog();
 		}
 
 		private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)

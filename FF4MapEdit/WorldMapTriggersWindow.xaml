@@ -1,0 +1,42 @@
+﻿<Window x:Class="FF4MapEdit.WorldMapTriggersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FF4MapEdit"
+        xmlns:core="clr-namespace:System;assembly=mscorlib"
+        xmlns:ff4="clr-namespace:FF4;assembly=FF4"
+        mc:Ignorable="d"
+        Title="WorldMapTriggersWindow" Height="450" Width="800" Closed="Window_Closed">
+	<Window.Resources>
+		<!--Create list of enumeration values-->
+		<ObjectDataProvider x:Key="facingDirection" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
+			<ObjectDataProvider.MethodParameters>
+				<x:Type Type="ff4:FacingDirection"/>
+			</ObjectDataProvider.MethodParameters>
+		</ObjectDataProvider>
+	</Window.Resources>
+	<ScrollViewer>
+		<StackPanel VerticalAlignment="Top">
+			<Label Margin="10,15,0,0">Teleports</Label>
+			<DataGrid x:Name="TeleportsDataGrid" RowHeaderWidth="0" AutoGenerateColumns="False" Margin="15" HorizontalAlignment="Left" VerticalAlignment="Top">
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="X" Binding="{Binding X}"/>
+					<DataGridTextColumn Header="Y" Binding="{Binding Y}"/>
+					<DataGridTextColumn Header="Dest Map" Binding="{Binding DestinationMap}"/>
+					<DataGridTextColumn Header="Dest X" Binding="{Binding DestinationX}"/>
+					<DataGridTextColumn Header="Dest Y" Binding="{Binding DestinationY}"/>
+					<DataGridComboBoxColumn Header="Facing" SelectedValueBinding="{Binding FacingDirection}" ItemsSource="{Binding Source={StaticResource facingDirection}}"/>
+				</DataGrid.Columns>
+			</DataGrid>
+			<Label Margin="10,15,0,0">Events</Label>
+			<DataGrid x:Name="EventsDataGrid" RowHeaderWidth="0" AutoGenerateColumns="False" Margin="15" HorizontalAlignment="Left" VerticalAlignment="Top">
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="X" Binding="{Binding X}"/>
+					<DataGridTextColumn Header="Y" Binding="{Binding Y}"/>
+					<DataGridTextColumn Header="Event Code" Binding="{Binding EventCode}"/>
+				</DataGrid.Columns>
+			</DataGrid>
+	    </StackPanel>
+    </ScrollViewer>
+</Window>

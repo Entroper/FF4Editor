@@ -47,6 +47,11 @@ namespace FF4
 		public const int MapTileCount = 128;
 		public const int MapPaletteLength = 64;
 
+		public const int WorldMapTriggerOffset = 0xCFE66;
+		public const int WorldMapTriggerPointersOffset = 0xCFE60;
+		public const int WorldMapTriggerCount = 82;
+		public const int WorldMapTriggerSize = 5;
+
 		public FF4Rom(string filename) : base(filename)
 		{
 		}
@@ -138,6 +143,27 @@ namespace FF4
 			return new Tileset(subTiles, formations, palette, paletteOffsets, tileProperties);
 		}
 
+		public List<WorldMapTrigger> LoadWorldMapTriggers(out ushort[] pointers)
+		{
+			var triggerBytes = Get(WorldMapTriggerOffset, WorldMapTriggerCount * WorldMapTriggerSize).Chunk(WorldMapTriggerSize);
+			pointers = Get(WorldMapTriggerPointersOffset, 6).ToUShorts();
+
+			var triggers = new List<WorldMapTrigger>();
+			foreach (var bytes in triggerBytes)
+			{
+				if (bytes[2] == 0xFF)
+				{
+					triggers.Add(new WorldMapEvent(bytes));
+				}
+				else
+				{
+					triggers.Add(new WorldMapTeleport(bytes));
+				}
+			}
+
+			return triggers;
+		}
+
 		public void SaveWorldMap(Map map)
 		{
 			var length = map.CompressedSize;
@@ -188,6 +214,13 @@ namespace FF4
 			{
 				Put(MoonTilePropertiesOffset, propertyBytes);
 			}
+		}
+
+		public void SaveWorldMapTriggers(List<WorldMapTrigger> triggers, ushort[] pointers)
+		{
+			var triggerBytes = triggers.SelectMany(trigger => trigger.Bytes).ToArray();
+			Put(WorldMapTriggerOffset, triggerBytes);
+			Put(WorldMapTriggerPointersOffset, Blob.FromUShorts(pointers));
 		}
 	}
 }

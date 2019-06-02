@@ -55,7 +55,8 @@
 			<CheckBox x:Name="EnemyEncountersCheckBox" Content="Enemy Encounters" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top"/>
 			<CheckBox x:Name="TriggerCheckBox" Content="Trigger" HorizontalAlignment="Left" Margin="10,230,0,0" VerticalAlignment="Top"/>
 		</Grid>
-		<Label x:Name="SpaceUsedLabel" Content="" HorizontalAlignment="Left" Margin="10,441,0,0" VerticalAlignment="Top"/>
-		<Label x:Name="CoordinatesLabel" Content="" HorizontalAlignment="Left" Margin="10,476,0,0" VerticalAlignment="Top"/>
+		<Button x:Name="EditTriggersButton" Content="Edit Triggers" HorizontalAlignment="Left" Margin="15,441,0,0" Padding="5" VerticalAlignment="Top" FontSize="16" Visibility="Hidden" Click="EditTriggersButton_Click"/>
+		<Label x:Name="SpaceUsedLabel" Content="" HorizontalAlignment="Left" Margin="10,466,0,0" VerticalAlignment="Top"/>
+		<Label x:Name="CoordinatesLabel" Content="" HorizontalAlignment="Left" Margin="10,486,0,0" VerticalAlignment="Top"/>
 	</Grid>
 </Window>
