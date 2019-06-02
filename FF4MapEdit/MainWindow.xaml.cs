@@ -161,9 +161,7 @@ namespace FF4MapEdit
 			SpaceUsed = _map.CompressedSize;
 
 			SelectTile(0, 0);
-			TilePropertiesGrid.Visibility = Visibility.Visible;
-
-			EditTriggersButton.Visibility = Visibility.Visible;
+			SidePanel.Visibility = Visibility.Visible;
 		}
 
 		private void LoadWorldMapTileset()
