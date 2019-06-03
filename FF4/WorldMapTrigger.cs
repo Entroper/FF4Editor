@@ -10,9 +10,12 @@ namespace FF4
 	{
 		public readonly byte[] Bytes;
 
-		protected WorldMapTrigger(byte[] bytes)
+		public WorldMapTriggerType Type { get; set; }
+
+		protected WorldMapTrigger(byte[] bytes, WorldMapTriggerType type)
 		{
 			Bytes = bytes;
+			Type = type;
 		}
 
 		public byte X
@@ -27,9 +30,21 @@ namespace FF4
 		}
 	}
 
+	public enum WorldMapTriggerType : byte
+	{
+		Teleport,
+		Event = 0xFF
+	}
+
 	public class WorldMapTeleport : WorldMapTrigger
 	{
-		public WorldMapTeleport(byte[] bytes) : base(bytes) {}
+		public WorldMapTeleport(byte[] bytes) : base(bytes, WorldMapTriggerType.Teleport)
+		{
+			if (DestinationMap == 0xFF)
+			{
+				DestinationMap = 0x00;
+			}
+		}
 
 		public byte DestinationMap
 		{
@@ -61,7 +76,7 @@ namespace FF4
 		}
 	}
 
-	public enum FacingDirection
+	public enum FacingDirection : byte
 	{
 		North = 0x00,
 		East = 0x40,
@@ -71,7 +86,10 @@ namespace FF4
 
 	public class WorldMapEvent : WorldMapTrigger
 	{
-		public WorldMapEvent(byte[] bytes) : base(bytes) {}
+		public WorldMapEvent(byte[] bytes) : base(bytes, WorldMapTriggerType.Event)
+		{
+			Bytes[2] = 0xFF;
+		}
 
 		public byte EventCall
 		{

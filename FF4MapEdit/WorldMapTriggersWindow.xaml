@@ -10,35 +10,46 @@
         Title="WorldMapTriggersWindow" Height="450" Width="800" Closed="Window_Closed">
 	<Window.Resources>
 		<!--Create list of enumeration values-->
-		<ObjectDataProvider x:Key="facingDirection" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
+		<ObjectDataProvider x:Key="FacingDirection" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
 			<ObjectDataProvider.MethodParameters>
 				<x:Type Type="ff4:FacingDirection"/>
+			</ObjectDataProvider.MethodParameters>
+		</ObjectDataProvider>
+		<ObjectDataProvider x:Key="WorldMapTriggerType" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
+			<ObjectDataProvider.MethodParameters>
+				<x:Type Type="ff4:WorldMapTriggerType"/>
 			</ObjectDataProvider.MethodParameters>
 		</ObjectDataProvider>
 		<local:HexValueConverter x:Key="HexValueConverter"/>
 		<local:WorldMapTriggerDataTemplateSelector x:Key="WorldMapTriggerDataTemplateSelector"/>
 		<DataTemplate x:Key="WorldMapTeleportTemplate" DataType="{x:Type ff4:WorldMapTeleport}">
-			<StackPanel Orientation="Horizontal">
-				<Label Margin="20,0,0,0">Coords:</Label>
-				<TextBox Width="24" Text="{Binding X, Converter={StaticResource HexValueConverter}}"/>
-				<TextBox Width="24" Text="{Binding Y, Converter={StaticResource HexValueConverter}}"/>
-				<Label Margin="20,0,0,0">Map:</Label>
-				<TextBox Width="24" Text="{Binding DestinationMap, Converter={StaticResource HexValueConverter}}"/>
-				<Label Margin="20,0,0,0">Dest:</Label>
-				<TextBox Width="24" Text="{Binding DestinationX, Converter={StaticResource HexValueConverter}}"/>
-				<TextBox Width="24" Text="{Binding DestinationY, Converter={StaticResource HexValueConverter}}"/>
-				<Label Margin="20,0,0,0">Facing:</Label>
-				<ComboBox Width="60" SelectedValue="{Binding FacingDirection}" ItemsSource="{Binding Source={StaticResource facingDirection}}"></ComboBox>
-			</StackPanel>
+			<Border Padding="2">
+				<StackPanel Orientation="Horizontal">
+					<ComboBox Width="100" SelectedValue="{Binding Type, Mode=OneWay}" ItemsSource="{Binding Source={StaticResource WorldMapTriggerType}}" SelectionChanged="TriggerType_SelectionChanged"/>
+					<Label Margin="20,0,0,0">Coords:</Label>
+					<TextBox Width="24" Text="{Binding X, Converter={StaticResource HexValueConverter}}"/>
+					<TextBox Width="24" Text="{Binding Y, Converter={StaticResource HexValueConverter}}"/>
+					<Label Margin="20,0,0,0">Map:</Label>
+					<TextBox Width="24" Text="{Binding DestinationMap, Converter={StaticResource HexValueConverter}}"/>
+					<Label Margin="20,0,0,0">Dest:</Label>
+					<TextBox Width="24" Text="{Binding DestinationX, Converter={StaticResource HexValueConverter}}"/>
+					<TextBox Width="24" Text="{Binding DestinationY, Converter={StaticResource HexValueConverter}}"/>
+					<Label Margin="20,0,0,0">Facing:</Label>
+					<ComboBox Width="60" SelectedValue="{Binding FacingDirection}" ItemsSource="{Binding Source={StaticResource FacingDirection}}"></ComboBox>
+				</StackPanel>
+			</Border>
 		</DataTemplate>
 		<DataTemplate x:Key="WorldMapEventTemplate" DataType="{x:Type ff4:WorldMapEvent}">
-			<StackPanel Orientation="Horizontal">
-				<Label Margin="20,0,0,0">Coords:</Label>
-				<TextBox Width="24" Text="{Binding X, Converter={StaticResource HexValueConverter}}"/>
-				<TextBox Width="24" Text="{Binding Y, Converter={StaticResource HexValueConverter}}"/>
-				<Label Margin="20,0,0,0">Event Call:</Label>
-				<TextBox Width="24" Text="{Binding EventCall, Converter={StaticResource HexValueConverter}}"/>
-			</StackPanel>
+			<Border Padding="2">
+				<StackPanel Orientation="Horizontal">
+					<ComboBox Width="100" SelectedValue="{Binding Type}" ItemsSource="{Binding Source={StaticResource WorldMapTriggerType}}" SelectionChanged="TriggerType_SelectionChanged"/>
+					<Label Margin="20,0,0,0">Coords:</Label>
+					<TextBox Width="24" Text="{Binding X, Converter={StaticResource HexValueConverter}}"/>
+					<TextBox Width="24" Text="{Binding Y, Converter={StaticResource HexValueConverter}}"/>
+					<Label Margin="20,0,0,0">Event Call:</Label>
+					<TextBox Width="24" Text="{Binding EventCall, Converter={StaticResource HexValueConverter}}"/>
+				</StackPanel>
+			</Border>
 		</DataTemplate>
 		<ControlTemplate x:Key="NoScroll">
 			<ItemsPresenter></ItemsPresenter>
@@ -46,11 +57,11 @@
 	</Window.Resources>
 	<ScrollViewer>
 		<StackPanel VerticalAlignment="Top">
-			<Label Margin="10,15,0,0">Overworld</Label>
+			<Label Margin="10,15,0,0" FontWeight="Bold">Overworld</Label>
 			<ListView x:Name="OverworldListView" Template="{StaticResource NoScroll}" ItemTemplateSelector="{StaticResource WorldMapTriggerDataTemplateSelector}"/>
-			<Label Margin="10,15,0,0">Underworld</Label>
+			<Label Margin="10,15,0,0" FontWeight="Bold">Underworld</Label>
 			<ListView x:Name="UnderworldListView" Template="{StaticResource NoScroll}" ItemTemplateSelector="{StaticResource WorldMapTriggerDataTemplateSelector}"/>
-			<Label Margin="10,15,0,0">Moon</Label>
+			<Label Margin="10,15,0,0" FontWeight="Bold">Moon</Label>
 			<ListView x:Name="MoonListView" Template="{StaticResource NoScroll}" ItemTemplateSelector="{StaticResource WorldMapTriggerDataTemplateSelector}"/>
 	    </StackPanel>
     </ScrollViewer>
