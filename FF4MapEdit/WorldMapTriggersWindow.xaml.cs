@@ -52,23 +52,92 @@ namespace FF4MapEdit
 			_rom.SaveWorldMapTriggers(_overworldTriggers.Concat(_underworldTriggers).Concat(_moonTriggers).ToList(), _pointers);
 		}
 
-		private void TriggerType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void MoveUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+
+            var listViewItem = button.GetAncestorOfType<ListViewItem>();
+            var listView = listViewItem.GetAncestorOfType<ListView>();
+
+            var srcTriggers = (ObservableCollection<WorldMapTrigger>)listView.ItemsSource;
+            var srcIndex = listView.Items.IndexOf(listViewItem.DataContext);
+
+            var destTriggers = srcTriggers;
+            var destIndex = srcIndex - 1;
+            if (destIndex == -1)
+            {
+                if (srcTriggers == _moonTriggers)
+                {
+                    destTriggers = _underworldTriggers;
+                    destIndex = _underworldTriggers.Count - 1;
+                }
+                else if (srcTriggers == _underworldTriggers)
+                {
+                    destTriggers = _overworldTriggers;
+                    destIndex = _overworldTriggers.Count - 1;
+                }
+                else if (srcTriggers == _overworldTriggers)
+                {
+                    destTriggers = _moonTriggers;
+                    destIndex = _moonTriggers.Count - 1;
+                }
+            }
+
+            SwapTriggers(srcTriggers, destTriggers, srcIndex, destIndex);
+        }
+
+        private void MoveDownButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+
+            var listViewItem = button.GetAncestorOfType<ListViewItem>();
+            var listView = listViewItem.GetAncestorOfType<ListView>();
+
+            var srcTriggers = (ObservableCollection<WorldMapTrigger>)listView.ItemsSource;
+            var srcIndex = listView.Items.IndexOf(listViewItem.DataContext);
+
+            var destTriggers = srcTriggers;
+            var destIndex = srcIndex + 1;
+            if (destIndex == listView.Items.Count)
+            {
+                if (srcTriggers == _overworldTriggers)
+                {
+                    destTriggers = _underworldTriggers;
+                }
+                else if (srcTriggers == _underworldTriggers)
+                {
+                    destTriggers = _moonTriggers;
+                }
+                else if (srcTriggers == _moonTriggers)
+                {
+                    destTriggers = _overworldTriggers;
+                }
+
+                destIndex = 0;
+            }
+
+            SwapTriggers(srcTriggers, destTriggers, srcIndex, destIndex);
+        }
+
+        private void SwapTriggers(ObservableCollection<WorldMapTrigger> srcTriggers, ObservableCollection<WorldMapTrigger> destTriggers, int srcIndex, int destIndex)
+        {
+            var source = srcTriggers[srcIndex];
+            var dest = destTriggers[destIndex];
+
+            destTriggers.RemoveAt(destIndex);
+            destTriggers.Insert(destIndex, source);
+
+            srcTriggers.RemoveAt(srcIndex);
+            srcTriggers.Insert(srcIndex, dest);
+        }
+
+        private void TriggerType_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			var comboBox = (ComboBox)sender;
 			var selectedType = (WorldMapTriggerType)comboBox.SelectedValue;
 
-			var parent = VisualTreeHelper.GetParent(comboBox);
-			while (!(parent is ListViewItem))
-			{
-				parent = VisualTreeHelper.GetParent(parent);
-			}
-			var listViewItem = (ListViewItem)parent;
-
-			while (!(parent is ListView))
-			{
-				parent = VisualTreeHelper.GetParent(parent);
-			}
-			var listView = (ListView)parent;
+            var listViewItem = comboBox.GetAncestorOfType<ListViewItem>();
+			var listView = listViewItem.GetAncestorOfType<ListView>();
 
 			var trigger = (WorldMapTrigger)listViewItem.DataContext;
 			var selectedIndex = listView.Items.IndexOf(trigger);

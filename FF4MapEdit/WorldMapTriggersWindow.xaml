@@ -25,7 +25,13 @@
 		<DataTemplate x:Key="WorldMapTeleportTemplate" DataType="{x:Type ff4:WorldMapTeleport}">
 			<Border Padding="2">
 				<StackPanel Orientation="Horizontal">
-					<ComboBox Width="100" SelectedValue="{Binding Type, Mode=OneWay}" ItemsSource="{Binding Source={StaticResource WorldMapTriggerType}}" SelectionChanged="TriggerType_SelectionChanged"/>
+                    <Button ToolTip="Move Up" Click="MoveUpButton_Click">
+                        <Image Width="32" Height="32" Source="icons/iconfinder_arrow-up_3556117.png"/>
+                    </Button>
+                    <Button ToolTip="Move Down" Click="MoveDownButton_Click">
+                        <Image Width="32" Height="32" Source="icons/iconfinder_arrow-down_3556116.png"/>
+                    </Button>
+					<ComboBox Width="100" Margin="20,0,0,0" SelectedValue="{Binding Type, Mode=OneWay}" ItemsSource="{Binding Source={StaticResource WorldMapTriggerType}}" SelectionChanged="TriggerType_SelectionChanged"/>
 					<Label Margin="20,0,0,0">Coords:</Label>
 					<TextBox Width="24" Text="{Binding X, Converter={StaticResource HexValueConverter}}"/>
 					<TextBox Width="24" Text="{Binding Y, Converter={StaticResource HexValueConverter}}"/>
@@ -42,7 +48,13 @@
 		<DataTemplate x:Key="WorldMapEventTemplate" DataType="{x:Type ff4:WorldMapEvent}">
 			<Border Padding="2">
 				<StackPanel Orientation="Horizontal">
-					<ComboBox Width="100" SelectedValue="{Binding Type}" ItemsSource="{Binding Source={StaticResource WorldMapTriggerType}}" SelectionChanged="TriggerType_SelectionChanged"/>
+                    <Button ToolTip="Move Up" Click="MoveUpButton_Click">
+                        <Image Width="32" Height="32" Source="icons/iconfinder_arrow-up_3556117.png"/>
+                    </Button>
+                    <Button ToolTip="Move Down" Click="MoveDownButton_Click">
+                        <Image Width="32" Height="32" Source="icons/iconfinder_arrow-down_3556116.png"/>
+                    </Button>
+                    <ComboBox Width="100" Margin="20,0,0,0" SelectedValue="{Binding Type}" ItemsSource="{Binding Source={StaticResource WorldMapTriggerType}}" SelectionChanged="TriggerType_SelectionChanged"/>
 					<Label Margin="20,0,0,0">Coords:</Label>
 					<TextBox Width="24" Text="{Binding X, Converter={StaticResource HexValueConverter}}"/>
 					<TextBox Width="24" Text="{Binding Y, Converter={StaticResource HexValueConverter}}"/>

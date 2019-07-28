@@ -63,6 +63,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GetAncestor.cs" />
     <Compile Include="HexValueConverter.cs" />
     <Compile Include="WorldMapTriggersWindow.xaml.cs">
       <DependentUpon>WorldMapTriggersWindow.xaml</DependentUpon>
@@ -125,6 +126,8 @@
     <Resource Include="icons\iconfinder_rectangle_84039.png" />
     <Resource Include="icons\iconfinder_Save_1493294.png" />
     <Resource Include="icons\iconfinder_folder_open_59927.png" />
+    <Resource Include="icons\iconfinder_arrow-up_3556117.png" />
+    <Resource Include="icons\iconfinder_arrow-down_3556116.png" />
     <Content Include="icons\open.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
