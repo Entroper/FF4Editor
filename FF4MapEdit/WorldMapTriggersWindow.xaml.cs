@@ -35,7 +35,9 @@ namespace FF4MapEdit
 			_rom = rom;
 
 			var triggers = _rom.LoadWorldMapTriggers(out _pointers);
-			var overworldTriggerCount = _pointers[1] / FF4Rom.WorldMapTriggerSize;
+
+            // This is dumb, LoadWorldMapTriggers() should return separate lists.
+            var overworldTriggerCount = _pointers[1] / FF4Rom.WorldMapTriggerSize;
 			var underworldTriggerCount = _pointers[2] / FF4Rom.WorldMapTriggerSize - overworldTriggerCount;
 			var moonTriggerCount = FF4Rom.WorldMapTriggerCount - overworldTriggerCount - underworldTriggerCount;
 			_overworldTriggers = new ObservableCollection<WorldMapTrigger>(triggers.GetRange(0, overworldTriggerCount));
@@ -48,7 +50,11 @@ namespace FF4MapEdit
 		}
 
 		private void Window_Closed(object sender, EventArgs e)
-		{
+        {
+            // This is dumb, SaveWorldMapTriggers() should accept separate lists and figure out the pointers itself.
+            _pointers[1] = (ushort)(_overworldTriggers.Count * FF4Rom.WorldMapTriggerSize);
+            _pointers[2] = (ushort)(_pointers[1] + _underworldTriggers.Count * FF4Rom.WorldMapTriggerSize);
+
 			_rom.SaveWorldMapTriggers(_overworldTriggers.Concat(_underworldTriggers).Concat(_moonTriggers).ToList(), _pointers);
 		}
 
@@ -69,21 +75,20 @@ namespace FF4MapEdit
                 if (srcTriggers == _moonTriggers)
                 {
                     destTriggers = _underworldTriggers;
-                    destIndex = _underworldTriggers.Count - 1;
                 }
                 else if (srcTriggers == _underworldTriggers)
                 {
                     destTriggers = _overworldTriggers;
-                    destIndex = _overworldTriggers.Count - 1;
                 }
                 else if (srcTriggers == _overworldTriggers)
                 {
                     destTriggers = _moonTriggers;
-                    destIndex = _moonTriggers.Count - 1;
                 }
+
+                destIndex = destTriggers.Count;
             }
 
-            SwapTriggers(srcTriggers, destTriggers, srcIndex, destIndex);
+            MoveTrigger(srcTriggers, destTriggers, srcIndex, destIndex);
         }
 
         private void MoveDownButton_Click(object sender, RoutedEventArgs e)
@@ -116,19 +121,25 @@ namespace FF4MapEdit
                 destIndex = 0;
             }
 
-            SwapTriggers(srcTriggers, destTriggers, srcIndex, destIndex);
+            MoveTrigger(srcTriggers, destTriggers, srcIndex, destIndex);
         }
 
-        private void SwapTriggers(ObservableCollection<WorldMapTrigger> srcTriggers, ObservableCollection<WorldMapTrigger> destTriggers, int srcIndex, int destIndex)
+        private void MoveTrigger(ObservableCollection<WorldMapTrigger> srcTriggers, ObservableCollection<WorldMapTrigger> destTriggers, int srcIndex, int destIndex)
         {
             var source = srcTriggers[srcIndex];
-            var dest = destTriggers[destIndex];
+            WorldMapTrigger dest = null;
 
-            destTriggers.RemoveAt(destIndex);
+            // Order is important here.  Don't try to combine these if blocks.
+            if (srcTriggers == destTriggers)
+            {
+                dest = destTriggers[destIndex];
+                destTriggers.RemoveAt(destIndex);
+            }
             destTriggers.Insert(destIndex, source);
 
             srcTriggers.RemoveAt(srcIndex);
-            srcTriggers.Insert(srcIndex, dest);
+            if (srcTriggers == destTriggers)
+                srcTriggers.Insert(srcIndex, dest);
         }
 
         private void TriggerType_SelectionChanged(object sender, SelectionChangedEventArgs e)
