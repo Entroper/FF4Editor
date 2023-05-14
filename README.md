@@ -1,2 +1,2 @@
-# FF4MapEdit
+# FF4Editor
 An editor for Final Fantasy 4.
