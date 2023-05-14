@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FF4Lib", "FF4Lib\FF4Lib.csproj", "{2C5E4445-15AB-4195-8C05-8FAE263D2567}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FF4Editor", "FF4Editor\FF4Editor.csproj", "{9E0B5C9C-6B97-46B3-9C33-5ACED51D5483}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C5E4445-15AB-4195-8C05-8FAE263D2567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C5E4445-15AB-4195-8C05-8FAE263D2567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C5E4445-15AB-4195-8C05-8FAE263D2567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C5E4445-15AB-4195-8C05-8FAE263D2567}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E0B5C9C-6B97-46B3-9C33-5ACED51D5483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E0B5C9C-6B97-46B3-9C33-5ACED51D5483}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E0B5C9C-6B97-46B3-9C33-5ACED51D5483}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E0B5C9C-6B97-46B3-9C33-5ACED51D5483}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9239EC13-0B36-44F2-9518-60F044B4B697}
+	EndGlobalSection
+EndGlobal
