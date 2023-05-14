@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Hovercraft.ico" />
+    <None Remove="icons\iconfinder_arrow-down_3556116.png" />
+    <None Remove="icons\iconfinder_arrow-redo_59814.png" />
+    <None Remove="icons\iconfinder_arrow-undo_59818.png" />
+    <None Remove="icons\iconfinder_arrow-up_3556117.png" />
+    <None Remove="icons\iconfinder_Brush_131835.png" />
+    <None Remove="icons\iconfinder_Brush_132013.png" />
+    <None Remove="icons\iconfinder_color-picker_79715.png" />
+    <None Remove="icons\iconfinder_fill_44683.png" />
+    <None Remove="icons\iconfinder_folder_open_59927.png" />
+    <None Remove="icons\iconfinder_Grid_131737.png" />
+    <None Remove="icons\iconfinder_rectangle_4470.png" />
+    <None Remove="icons\iconfinder_rectangle_84039.png" />
+    <None Remove="icons\iconfinder_Save_1493294.png" />
+    <None Remove="icons\open.png" />
+    <None Remove="icons\save.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="icons\open.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="icons\save.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FF4Lib\FF4Lib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Hovercraft.ico" />
+    <Resource Include="icons\iconfinder_arrow-down_3556116.png" />
+    <Resource Include="icons\iconfinder_arrow-redo_59814.png" />
+    <Resource Include="icons\iconfinder_arrow-undo_59818.png" />
+    <Resource Include="icons\iconfinder_arrow-up_3556117.png" />
+    <Resource Include="icons\iconfinder_Brush_131835.png" />
+    <Resource Include="icons\iconfinder_Brush_132013.png" />
+    <Resource Include="icons\iconfinder_color-picker_79715.png" />
+    <Resource Include="icons\iconfinder_fill_44683.png" />
+    <Resource Include="icons\iconfinder_folder_open_59927.png" />
+    <Resource Include="icons\iconfinder_Grid_131737.png" />
+    <Resource Include="icons\iconfinder_rectangle_4470.png" />
+    <Resource Include="icons\iconfinder_rectangle_84039.png" />
+    <Resource Include="icons\iconfinder_Save_1493294.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="App.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="MainWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>
