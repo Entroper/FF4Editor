@@ -58,7 +58,7 @@ public class FF4Rom : SnesRom
 		return title == "FINAL FANTASY 2     ";
 	}
 
-	public Map LoadWorldMap(MapType mapType)
+	public WorldMap LoadWorldMap(MapType mapType)
 	{
 		Blob data, pointerBytes;
 		int rowCount;
@@ -89,7 +89,7 @@ public class FF4Rom : SnesRom
 		var pointers = new ushort[rowCount];
 		Buffer.BlockCopy(pointerBytes, 0, pointers, 0, pointerBytes.Length);
 
-		return new Map(mapType, data, pointers);
+		return new WorldMap(mapType, data, pointers);
 	}
 
 	public Tileset LoadWorldMapTileset(MapType mapType)
@@ -160,7 +160,7 @@ public class FF4Rom : SnesRom
 		return triggers;
 	}
 
-	public void SaveWorldMap(Map map)
+	public void SaveWorldMap(WorldMap map)
 	{
 		var length = map.CompressedSize;
 		int maxLength =

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -12,22 +13,20 @@ namespace FF4Editor;
 /// </summary>
 public partial class WorldMapTriggersWindow : Window
 {
-	private readonly FF4Rom _rom;
+	private readonly List<WorldMapTrigger> _triggers;
+    private readonly ushort[] _pointers;
 
-	private readonly ushort[] _pointers;
 	private readonly ObservableCollection<WorldMapTrigger> _overworldTriggers;
 	private readonly ObservableCollection<WorldMapTrigger> _underworldTriggers;
 	private readonly ObservableCollection<WorldMapTrigger> _moonTriggers;
 
-	public WorldMapTriggersWindow(FF4Rom rom)
+	public WorldMapTriggersWindow(List<WorldMapTrigger> triggers, ushort[] pointers)
 	{
+        _triggers = triggers;
+        _pointers = pointers;
+
 		InitializeComponent();
 
-		_rom = rom;
-
-		var triggers = _rom.LoadWorldMapTriggers(out _pointers);
-
-        // This is dumb, LoadWorldMapTriggers() should return separate lists.
         var overworldTriggerCount = _pointers[1] / FF4Rom.WorldMapTriggerSize;
 		var underworldTriggerCount = _pointers[2] / FF4Rom.WorldMapTriggerSize - overworldTriggerCount;
 		var moonTriggerCount = FF4Rom.WorldMapTriggerCount - overworldTriggerCount - underworldTriggerCount;
@@ -42,11 +41,11 @@ public partial class WorldMapTriggersWindow : Window
 
 	private void Window_Closed(object sender, EventArgs e)
 {
-        // This is dumb, SaveWorldMapTriggers() should accept separate lists and figure out the pointers itself.
         _pointers[1] = (ushort)(_overworldTriggers.Count * FF4Rom.WorldMapTriggerSize);
         _pointers[2] = (ushort)(_pointers[1] + _underworldTriggers.Count * FF4Rom.WorldMapTriggerSize);
 
-		_rom.SaveWorldMapTriggers(_overworldTriggers.Concat(_underworldTriggers).Concat(_moonTriggers).ToList(), _pointers);
+        _triggers.Clear();
+        _triggers.AddRange(_overworldTriggers.Concat(_underworldTriggers).Concat(_moonTriggers));
 	}
 
     private void MoveUpButton_Click(object sender, RoutedEventArgs e)
@@ -64,17 +63,11 @@ public partial class WorldMapTriggersWindow : Window
         if (destIndex == -1)
         {
             if (srcTriggers == _moonTriggers)
-            {
                 destTriggers = _underworldTriggers;
-            }
             else if (srcTriggers == _underworldTriggers)
-            {
                 destTriggers = _overworldTriggers;
-            }
             else if (srcTriggers == _overworldTriggers)
-            {
                 destTriggers = _moonTriggers;
-            }
 
             destIndex = destTriggers.Count;
         }

@@ -1,6 +1,6 @@
 ﻿namespace FF4Lib;
 
-public class Map
+public class WorldMap
 {
 	private readonly byte[,] _map;
 	private readonly byte[][] _compressedRows;
@@ -19,7 +19,7 @@ public class Map
 
 	public int CompressedSize => _compressedRowLengths.Sum();
 
-	public Map(MapType mapType, byte[] data, ushort[] pointers)
+	public WorldMap(MapType mapType, byte[] data, ushort[] pointers)
 	{
 		MapType = mapType;
 
