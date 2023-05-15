@@ -47,6 +47,7 @@ public partial class MainWindow : Window
 			MessageBox.Show("ROM does not appear to be a US version 1.1 ROM.  Proceed at your own risk.", "Validation Failed");
 
 		_filename = openFileDialog.FileName;
+		FilenameLabel.Content = _filename;
 
 		_worldMaps = new[]
 		{

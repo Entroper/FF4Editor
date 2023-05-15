@@ -8,7 +8,7 @@
         Title="FF4 Editor" Height="600" Width="400">
 	<Grid>
         <StackPanel>
-		    <ToolBarTray Height="40" VerticalAlignment="Top" Margin="0,0,0,0">
+            <ToolBarTray Height="40" VerticalAlignment="Top" Margin="0,0,0,0">
 			    <ToolBar x:Name="ToolBar" HorizontalAlignment="Left" VerticalAlignment="Top">
 				    <Button x:Name="OpenButton" ToolTip="Open" Click="OpenButton_Click">
 					    <Image Width="32" Height="32" Source="icons/iconfinder_folder_open_59927.png"/>
@@ -18,7 +18,8 @@
 				    </Button>
 			    </ToolBar>
 		    </ToolBarTray>
-            <Button x:Name="WorldMapButton" Content="Edit World Maps" Click="WorldMapButton_Click" Width="200" Margin="15"/>
+            <Label x:Name="FilenameLabel" Content="(no file loaded)" Margin="15" HorizontalAlignment="Center"/>
+            <Button x:Name="WorldMapButton" Content="Edit World Maps" Click="WorldMapButton_Click" Width="200"/>
         </StackPanel>
     </Grid>
 </Window>
