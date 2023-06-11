@@ -16,11 +16,11 @@ namespace FF4Editor;
 public partial class WorldMapWindow : Window
 {
     private WorldMap[] _maps;
-    private Tileset[] _tilesets;
+    private WorldTileset[] _tilesets;
     private List<WorldMapTrigger> _triggers;
     private ushort[] _triggerPointers;
 
-    private Tileset _tileset;
+    private WorldTileset _tileset;
     private WorldMap _map;
 
     private byte _selectedTile = 0;
@@ -55,7 +55,7 @@ public partial class WorldMapWindow : Window
         }
     }
 
-    public WorldMapWindow(WorldMap[] maps, Tileset[] tilesets, List<WorldMapTrigger> triggers, ushort[] triggerPointers)
+    public WorldMapWindow(WorldMap[] maps, WorldTileset[] tilesets, List<WorldMapTrigger> triggers, ushort[] triggerPointers)
     {
         _maps = maps;
         _tilesets = tilesets;
@@ -97,13 +97,15 @@ public partial class WorldMapWindow : Window
         TriggerCheckBox.Unchecked += (sender, e) => OnPropertyCheckBoxCheckChanged(WorldTileProperties.Trigger, false);
     }
 
-    private (WorldMap, Tileset) LoadWorldMap(MapType mapType)
+    private (WorldMap, WorldTileset) LoadWorldMap(MapType mapType)
     {
         _map = _maps[(int)mapType];
         _tileset = _tilesets[(int)mapType];
 
-        LoadWorldMapTileset();
-        LoadWorldMapTiles();
+        Tileset.Source = Drawing.Maps.LoadWorldMapTileset(_tileset);
+        Map.Source = Drawing.Maps.LoadWorldMapTiles(_map, _tileset);
+        _gridLinesDrawing = CreateGridLinesDrawing();
+        ApplyGridLines(GridLinesButton.IsChecked == true);
 
         SpaceUsed = _map.CompressedSize;
 
@@ -113,43 +115,8 @@ public partial class WorldMapWindow : Window
         return (_map, _tileset);
     }
 
-    private void LoadWorldMapTileset()
+    private GeometryDrawing CreateGridLinesDrawing()
     {
-        var tileGroup = new DrawingGroup();
-        tileGroup.Children.Add(_selectedTileDrawing);
-
-        for (int i = 0; i < FF4Rom.MapTileCount; i++)
-        {
-            tileGroup.Children.Add(new ImageDrawing(
-                BitmapSource.Create(16, 16, 72, 72, PixelFormats.Bgr555, null, _tileset[i], 16 * 2),
-                new Rect(new Point(16 * (i % 16), 16 * (i / 16)), new Size(16, 16))));
-        }
-
-        Tileset.Source = new DrawingImage(tileGroup);
-    }
-
-    private void LoadWorldMapTiles()
-    {
-        var rowGroup = new DrawingGroup();
-        rowGroup.Open();
-
-        _rowBitmaps = new WriteableBitmap[_map.Height];
-        for (int y = 0; y < _map.Height; y++)
-        {
-            _rowBitmaps[y] = new WriteableBitmap(16 * _map.Width, 16, 72, 72, PixelFormats.Bgr555, null);
-            _rowBitmaps[y].Lock();
-            for (int x = 0; x < _map.Width; x++)
-            {
-                var tile = _map[y, x];
-                _rowBitmaps[y].WritePixels(new Int32Rect(16 * x, 0, 16, 16), _tileset[tile], 16 * 2, 0);
-            }
-
-            _rowBitmaps[y].Unlock();
-
-            rowGroup.Children.Add(new ImageDrawing(_rowBitmaps[y],
-                new Rect(new Point(0, 16 * y), new Size(16 * _map.Width, 16))));
-        }
-
         Map.Width = 16 * _map.Width;
         Map.Height = 16 * _map.Height;
 
@@ -162,18 +129,12 @@ public partial class WorldMapWindow : Window
         {
             geometry.Children.Add(new LineGeometry(new Point(0, 16 * y), new Point(Map.Width, 16 * y)));
         }
-        _gridLinesDrawing = new GeometryDrawing
+        return new GeometryDrawing
         {
             Geometry = geometry,
             Brush = Brushes.Transparent,
             Pen = new Pen(Brushes.Black, 1)
         };
-        if (GridLinesButton.IsChecked == true)
-        {
-            rowGroup.Children.Add(_gridLinesDrawing);
-        }
-
-        Map.Source = new DrawingImage(rowGroup);
     }
 
     private void MapComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -234,16 +195,27 @@ public partial class WorldMapWindow : Window
         tileGroup.Children.Add(_selectedTileDrawing);
     }
 
-    private void GridLinesButton_OnChecked(object sender, RoutedEventArgs e)
+    private void ApplyGridLines(bool on)
     {
         var rowGroup = (DrawingGroup)((DrawingImage)Map.Source).Drawing;
-        rowGroup.Children.Add(_gridLinesDrawing);
+        if (on)
+        {
+            rowGroup.Children.Add(_gridLinesDrawing);
+        }
+        else
+        {
+            rowGroup.Children.Remove(_gridLinesDrawing);
+        }
+    }
+
+    private void GridLinesButton_OnChecked(object sender, RoutedEventArgs e)
+    {
+        ApplyGridLines(true);
     }
 
     private void GridLinesButton_OnUnchecked(object sender, RoutedEventArgs e)
     {
-        var rowGroup = (DrawingGroup)((DrawingImage)Map.Source).Drawing;
-        rowGroup.Children.Remove(_gridLinesDrawing);
+        ApplyGridLines(false);
     }
 
     private void CheckTilePropertyBoxes()

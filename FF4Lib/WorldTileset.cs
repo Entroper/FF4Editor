@@ -1,13 +1,13 @@
 ﻿namespace FF4Lib;
 
-public class Tileset
+public class WorldTileset
 {
 	private readonly ushort[][] _tilesetBytes;
 	public ushort[] TileProperties { get; private set; }
 
 	public ushort[] this[int tileIndex] => _tilesetBytes[tileIndex];
 
-	public Tileset(byte[] subTiles, byte[] formations, ushort[] palette, byte[] paletteOffsets, ushort[] tileProperties)
+	public WorldTileset(byte[] subTiles, byte[] formations, ushort[] palette, byte[] paletteOffsets, ushort[] tileProperties)
 	{
 		RgbToBgr(palette);
 

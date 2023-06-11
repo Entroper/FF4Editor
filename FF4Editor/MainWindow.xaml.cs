@@ -15,7 +15,7 @@ public partial class MainWindow : Window
 	private string _filename;
 
 	private WorldMap[] _worldMaps;
-	private Tileset[] _tilesets;
+	private WorldTileset[] _tilesets;
 	private List<WorldMapTrigger> _triggers;
 	private ushort[] _triggerPointers;
 
@@ -24,7 +24,7 @@ public partial class MainWindow : Window
 		_filename = string.Empty;
 
 		_worldMaps = new WorldMap[0];
-		_tilesets = new Tileset[0];
+		_tilesets = new WorldTileset[0];
 		_triggers = new List<WorldMapTrigger>();
 		_triggerPointers = new ushort[0];
 
