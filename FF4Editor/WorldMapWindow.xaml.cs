@@ -103,7 +103,7 @@ public partial class WorldMapWindow : Window
         _tileset = _tilesets[(int)mapType];
 
         Tileset.Source = Drawing.Maps.LoadWorldMapTileset(_tileset);
-        Map.Source = Drawing.Maps.LoadWorldMapTiles(_map, _tileset);
+        (Map.Source, _rowBitmaps) = Drawing.Maps.LoadWorldMapTiles(_map, _tileset);
         _gridLinesDrawing = CreateGridLinesDrawing();
         ApplyGridLines(GridLinesButton.IsChecked == true);
 

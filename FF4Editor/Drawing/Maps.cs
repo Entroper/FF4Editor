@@ -21,7 +21,7 @@ namespace FF4Editor.Drawing
             return new DrawingImage(tileGroup);
         }
 
-        public static DrawingImage LoadWorldMapTiles(WorldMap map, WorldTileset tileset)
+        public static (DrawingImage image, WriteableBitmap[] rowBitmaps) LoadWorldMapTiles(WorldMap map, WorldTileset tileset)
         {
             var rowGroup = new DrawingGroup();
             rowGroup.Open();
@@ -43,7 +43,7 @@ namespace FF4Editor.Drawing
                     new Rect(new Point(0, 16 * y), new Size(16 * map.Width, 16))));
             }
 
-            return new DrawingImage(rowGroup);
+            return (new DrawingImage(rowGroup), rowBitmaps);
         }
     }
 }
